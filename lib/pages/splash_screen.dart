@@ -17,9 +17,12 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(vsync: this);
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AuthWrapper()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+        );
+      }
     });
   }
 
