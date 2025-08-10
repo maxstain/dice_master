@@ -1,4 +1,4 @@
-import 'package:dice_master/pages/homepage.dart';
+import 'package:dice_master/pages/splash_screen.dart';
 import 'package:dice_master/utils/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: systemTheme == ThemeMode.light
           ? AppTheme.lightTheme
           : AppTheme.darkTheme,
-      home: const MyHomePage(title: 'Dice Master Home Page'),
+      home: const SplashScreen(),
     );
   }
 }
