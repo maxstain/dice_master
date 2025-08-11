@@ -15,7 +15,7 @@ It allows you to roll dice, manage characters, and keep track of game sessions.
 - **Open Source**: Free to use and modify under the MIT License.
 - **Community Driven**: Contributions are welcome! Check out
   the [Contributing Guide](CONTRIBUTING.md).
-- **Documentation**: Comprehensive documentation available in the [docs](docs/) directory.
+- **Documentation**: Comprehensive documentation available in the [docs](docs/.) directory.
 - **Testing**: Includes unit tests and integration tests to ensure reliability.
 - **CI/CD**: Continuous integration and deployment setup for automated testing and builds.
 - **Localization**: Supports multiple languages for a wider audience.
@@ -115,7 +115,8 @@ For a detailed list of changes, please refer to the [CHANGELOG](CHANGELOG.md) fi
 
 ## Issues
 
-If you encounter any issues, please check the [issues](issues/) page on GitHub. If your issue is not
+If you encounter any issues, please check the [issues](issues/.) page on GitHub. If your issue is
+not
 listed, feel free to open a new issue with details about the problem.
 
 ## Future Plans
