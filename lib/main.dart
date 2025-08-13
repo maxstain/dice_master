@@ -1,27 +1,38 @@
-import 'package:dice_master/pages/splash_screen.dart';
-import 'package:dice_master/utils/app_theme.dart';
+import 'package:dice_master/features/splash/splashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'core/theme/theme_cubit.dart';
+import 'core/theme/themes.dart';
+import 'features/auth/bloc/auth_bloc.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const DiceMasterApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class DiceMasterApp extends StatelessWidget {
+  const DiceMasterApp({super.key});
 
-  // The current theme of the system
-  final ThemeMode systemTheme = ThemeMode.system;
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Dice Master',
-      theme: systemTheme == ThemeMode.light
-          ? AppTheme.lightTheme
-          : AppTheme.darkTheme,
-      home: const SplashScreen(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(create: (_) => AuthBloc()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            title: 'Dice Master',
+            debugShowCheckedModeBanner: false,
+            themeMode: themeState.mode,
+            theme: DiceThemes.light(),
+            darkTheme: DiceThemes.dark(),
+            home: const SplashScreen(),
+          );
+        },
+      ),
     );
   }
 }
