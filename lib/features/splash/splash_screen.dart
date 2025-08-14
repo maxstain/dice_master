@@ -1,3 +1,4 @@
+import 'package:dice_master/features/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,9 +53,7 @@ class _SplashScreenState extends State<SplashScreen>
           if (state is SplashNavigateToSignIn) {
             _pushReplace(context, const SignInScreen());
           } else if (state is SplashNavigateToHome) {
-            // TODO: Replace with your HomeScreen
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Authenticated! Go to HomeScreen.')));
+            _pushReplace(context, const HomeScreen());
           }
         },
         child: Scaffold(

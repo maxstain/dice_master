@@ -1,3 +1,4 @@
+import 'package:dice_master/features/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -59,9 +60,15 @@ class _SignInScreenState extends State<SignInScreen>
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('Signed in!')));
-            // TODO: Navigate to HomeScreen
+            // Navigate to home screen on successful sign-in
+            Navigator.of(context).pushAndRemoveUntil(
+              _animated(const HomeScreen()),
+              (route) => false,
+            );
+          } else if (state is AuthFailure) {
+            // Show error message if unauthenticated
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please sign in to continue')));
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));

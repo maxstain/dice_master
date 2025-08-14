@@ -1,4 +1,4 @@
-import 'package:dice_master/features/splash/splashScreen.dart';
+import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
