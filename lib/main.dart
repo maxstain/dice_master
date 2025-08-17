@@ -1,3 +1,4 @@
+import 'package:dice_master/features/splash/bloc/splash_bloc.dart';
 import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +20,12 @@ class DiceMasterApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(
+          // Provide SplashBloc here
+          create: (context) => SplashBloc(),
+          child:
+              const SplashScreen(), // Now SplashScreen can access it in initState
+        ),
         BlocProvider(create: (_) => AuthBloc()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

@@ -1,9 +1,9 @@
+import 'package:dice_master/features/auth/sign_in_screen.dart';
 import 'package:dice_master/features/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../auth/sign_in_screen.dart';
 import 'bloc/splash_bloc.dart';
 import 'bloc/splash_event.dart';
 import 'bloc/splash_state.dart';
@@ -46,61 +46,63 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return BlocProvider(
-      create: (_) => SplashBloc(),
-      child: BlocListener<SplashBloc, SplashState>(
-        listener: (context, state) {
-          if (state is SplashNavigateToSignIn) {
-            _pushReplace(context, const SignInScreen());
-          } else if (state is SplashNavigateToHome) {
-            _pushReplace(context, const HomeScreen());
-          }
-        },
-        child: Scaffold(
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [cs.primaryContainer, cs.surface],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+    return BlocListener<SplashBloc, SplashState>(
+      listener: (context, state) {
+        if (state is SplashNavigateToHome) {
+          // Navigate to HomeScreen
+          Navigator.of(context).pushReplacement(
+            _animated(const HomeScreen()),
+          ); // Or your preferred navigation method
+        } else if (state is SplashNavigateToSignIn) {
+          // Navigate to SignInScreen
+          Navigator.of(context).pushReplacement(
+            _animated(const SignInScreen()), // Replace with your SignInScreen
+          );
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.primaryContainer, cs.surface],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            child: Center(
-              child: FadeTransition(
-                opacity: _fade,
-                child: ScaleTransition(
-                  scale: _scale,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: cs.primary,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                                color: cs.primary.withOpacity(.35),
-                                blurRadius: 22,
-                                spreadRadius: 2)
-                          ],
-                        ),
-                        child:
-                            Icon(Icons.casino, size: 56, color: cs.onPrimary),
+          ),
+          child: Center(
+            child: FadeTransition(
+              opacity: _fade,
+              child: ScaleTransition(
+                scale: _scale,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                              color: cs.primary.withOpacity(.35),
+                              blurRadius: 22,
+                              spreadRadius: 2)
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      Text('Dice Master',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      Text('D&D GM & Player Companion',
-                          style: Theme.of(context).textTheme.labelLarge),
-                    ],
-                  ),
+                      child: Icon(Icons.casino, size: 56, color: cs.onPrimary),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Dice Master',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    Text('D&D GM & Player Companion',
+                        style: Theme.of(context).textTheme.labelLarge),
+                  ],
                 ),
               ),
             ),
