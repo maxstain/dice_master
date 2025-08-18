@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "767939049500",
+    "project_id": "dice-master-36257",
+    "storage_bucket": "dice-master-36257.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767939049500:android:ec39c725ac0ea95fe0c7d9",
+        "android_client_info": {
+          "package_name": "com.example.dice_master"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6Z1FKB6OH2Wnv7sZcr0ERf1aUlExJr8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

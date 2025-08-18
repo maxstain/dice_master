@@ -67,6 +67,7 @@ class _SignInScreenState extends State<SignInScreen>
             );
           } else if (state is AuthFailure) {
             // Show error message if unauthenticated
+            // FIXME: This condition is duplicated below. The first one might be intended for a different state.
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Please sign in to continue')));
           } else if (state is AuthFailure) {
@@ -94,83 +95,87 @@ class _SignInScreenState extends State<SignInScreen>
                           borderRadius: BorderRadius.circular(18)),
                       child: Padding(
                         padding: const EdgeInsets.all(20),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.casino, color: cs.primary),
-                                  const SizedBox(width: 8),
-                                  Text('Welcome back',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w700)),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _email,
-                                decoration: const InputDecoration(
-                                    labelText: 'Email',
-                                    prefixIcon: Icon(Icons.email_outlined)),
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (v) => v != null && v.contains('@')
-                                    ? null
-                                    : 'Enter a valid email',
-                              ),
-                              const SizedBox(height: 12),
-                              TextFormField(
-                                controller: _password,
-                                decoration: InputDecoration(
-                                  labelText: 'Password',
-                                  prefixIcon: const Icon(Icons.lock_outline),
-                                  suffixIcon: IconButton(
-                                    onPressed: () =>
-                                        setState(() => _obscure = !_obscure),
-                                    icon: Icon(_obscure
-                                        ? Icons.visibility
-                                        : Icons.visibility_off),
-                                  ),
+                        child: SingleChildScrollView(
+                          // Added SingleChildScrollView here
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.casino, color: cs.primary),
+                                    const SizedBox(width: 8),
+                                    Text('Welcome back',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w700)),
+                                  ],
                                 ),
-                                obscureText: _obscure,
-                                validator: (v) => v != null && v.length >= 6
-                                    ? null
-                                    : 'Min 6 characters',
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: loading
-                                    ? null
-                                    : () {
-                                        if (_formKey.currentState!.validate()) {
-                                          context.read<AuthBloc>().add(
-                                              SignInRequested(
-                                                  _email.text.trim(),
-                                                  _password.text.trim()));
-                                        }
-                                      },
-                                child: loading
-                                    ? const SizedBox(
-                                        height: 18,
-                                        width: 18,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2))
-                                    : const Text('Sign In'),
-                              ),
-                              const SizedBox(height: 10),
-                              TextButton(
-                                onPressed: () => Navigator.of(context)
-                                    .push(_animated(const SignUpScreen())),
-                                child: const Text(
-                                    "Don't have an account? Sign Up"),
-                              ),
-                            ],
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _email,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Email',
+                                      prefixIcon: Icon(Icons.email_outlined)),
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (v) => v != null && v.contains('@')
+                                      ? null
+                                      : 'Enter a valid email',
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _password,
+                                  decoration: InputDecoration(
+                                    labelText: 'Password',
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      onPressed: () =>
+                                          setState(() => _obscure = !_obscure),
+                                      icon: Icon(_obscure
+                                          ? Icons.visibility
+                                          : Icons.visibility_off),
+                                    ),
+                                  ),
+                                  obscureText: _obscure,
+                                  validator: (v) => v != null && v.length >= 6
+                                      ? null
+                                      : 'Min 6 characters',
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: loading
+                                      ? null
+                                      : () {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            context.read<AuthBloc>().add(
+                                                SignInRequested(
+                                                    _email.text.trim(),
+                                                    _password.text.trim()));
+                                          }
+                                        },
+                                  child: loading
+                                      ? const SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2))
+                                      : const Text('Sign In'),
+                                ),
+                                const SizedBox(height: 10),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context)
+                                      .push(_animated(const SignUpScreen())),
+                                  child: const Text(
+                                      "Don't have an account? Sign Up"),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
