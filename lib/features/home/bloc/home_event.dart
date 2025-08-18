@@ -27,7 +27,12 @@ class SessionUpdated extends HomeEvent {
   List<Object?> get props => [];
 }
 
-class LeaveSessionRequested extends HomeEvent {}
+class LeaveSessionRequested extends HomeEvent {
+  const LeaveSessionRequested();
+
+  @override
+  List<Object?> get props => [];
+}
 
 class HomeStarted extends HomeEvent {
   const HomeStarted();

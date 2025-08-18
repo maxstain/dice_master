@@ -24,7 +24,7 @@ class HomeDungeonMasterScreen extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               // logout the user or perform any necessary cleanup
-              context.read<HomeBloc>().add(LeaveSessionRequested());
+              context.read<HomeBloc>().add(const LeaveSessionRequested());
               // Navigate back to the splash screen
               Navigator.of(context).popUntil((route) => route.isFirst);
             },

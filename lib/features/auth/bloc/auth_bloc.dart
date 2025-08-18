@@ -64,8 +64,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       // Basic validation
-      if (event.email.isEmpty || event.password.isEmpty) {
-        emit(const AuthFailure('Email and password cannot be empty.'));
+      if (event.username.isEmpty ||
+          event.email.isEmpty ||
+          event.password.isEmpty) {
+        emit(const AuthFailure('Fields cannot be empty.'));
         return;
       }
       if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(event.email)) {
@@ -78,10 +80,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return;
       }
 
-      await _firebaseAuth.createUserWithEmailAndPassword(
-        email: event.email,
-        password: event.password,
-      );
+      var user = await _firebaseAuth
+          .createUserWithEmailAndPassword(
+            email: event.email,
+            password: event.password,
+          )
+          .then(
+            (userCredential) => userCredential,
+          );
+      // Set display name after user creation
+      await user.user?.updateProfile(displayName: event.username);
       // Auth state will be updated by _onAuthUserChanged via the stream
     } on FirebaseAuthException catch (e) {
       emit(AuthFailure(e.message ?? 'Sign up failed. Please try again.'));

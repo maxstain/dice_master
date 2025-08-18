@@ -32,7 +32,8 @@ class HomeScreen extends StatelessWidget {
               // Ensure we are not already in Lobby or another state that doesn't require leaving
               if (BlocProvider.of<HomeBloc>(context).state
                   is HomeDungeonMaster) {
-                BlocProvider.of<HomeBloc>(context).add(LeaveSessionRequested());
+                BlocProvider.of<HomeBloc>(context)
+                    .add(const LeaveSessionRequested());
               }
             });
           } else if (state is HomePlayer) {
@@ -48,7 +49,8 @@ class HomeScreen extends StatelessWidget {
                 .then((_) {
               // This is called when the HomePlayerScreen is popped
               if (BlocProvider.of<HomeBloc>(context).state is HomePlayer) {
-                BlocProvider.of<HomeBloc>(context).add(LeaveSessionRequested());
+                BlocProvider.of<HomeBloc>(context)
+                    .add(const LeaveSessionRequested());
               }
             });
           }

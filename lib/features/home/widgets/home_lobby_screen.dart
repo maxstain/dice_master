@@ -1,5 +1,8 @@
+import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
+import 'package:dice_master/features/auth/bloc/auth_event.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_event.dart';
+import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -74,11 +77,16 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
+            onPressed: () {
               // logout the user or perform any necessary cleanup
-              context.read<HomeBloc>().add(LeaveSessionRequested());
+              context.read<AuthBloc>().add(SignOutRequested());
               // Navigate back to the splash screen
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => const SplashScreen(),
+                ),
+                (route) => false, // Remove all previous routes
+              );
             },
           ),
         ],
