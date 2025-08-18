@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class AuthEvent extends Equatable {
+  // Removed _auth from here, it will be in the BLoC
   const AuthEvent();
 
   @override
@@ -11,6 +13,7 @@ class SignInRequested extends AuthEvent {
   final String email;
   final String password;
 
+  // Removed the validation logic from here, it's better handled in the UI or BLoC
   const SignInRequested(this.email, this.password);
 
   @override
@@ -25,4 +28,16 @@ class SignUpRequested extends AuthEvent {
 
   @override
   List<Object?> get props => [email, password];
+}
+
+class SignOutRequested extends AuthEvent {} // New event
+
+// Internal event for Firebase auth state changes
+class _AuthUserChanged extends AuthEvent {
+  final User? user;
+
+  const _AuthUserChanged(this.user);
+
+  @override
+  List<Object?> get props => [user];
 }

@@ -9,11 +9,11 @@ import 'core/theme/themes.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'firebase_options.dart';
 
-void main() {
-  Firebase.initializeApp(
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const DiceMasterApp());
 }
 

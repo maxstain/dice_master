@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePlayerScreen extends StatelessWidget {
   final String playerName;
+
   const HomePlayerScreen({super.key, required this.playerName});
 
   @override
@@ -12,19 +13,21 @@ class HomePlayerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Player Screen: $playerName'),
-        actions: [
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<HomeBloc>().add(const HomeStarted());
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Dispatch LeaveSessionRequested first
+            onPressed: () async {
+              // logout the user or perform any necessary cleanup
               context.read<HomeBloc>().add(LeaveSessionRequested());
-              // Then pop the current screen
-              // Check if the screen can be popped before popping
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
+              // Navigate back to the splash screen
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
-            tooltip: 'Leave Session',
           ),
         ],
       ),

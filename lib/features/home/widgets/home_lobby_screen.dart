@@ -65,6 +65,23 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lobby'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<HomeBloc>().add(const HomeStarted());
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              // logout the user or perform any necessary cleanup
+              context.read<HomeBloc>().add(LeaveSessionRequested());
+              // Navigate back to the splash screen
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Padding(

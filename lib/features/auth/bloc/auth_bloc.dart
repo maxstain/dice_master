@@ -1,35 +1,118 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc() : super(AuthInitial()) {
-    on<SignInRequested>(_onSignIn);
-    on<SignUpRequested>(_onSignUp);
+  final FirebaseAuth _firebaseAuth;
+  StreamSubscription<User?>? _userSubscription;
+
+  AuthBloc({FirebaseAuth? firebaseAuth})
+      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        super(AuthInitial()) {
+    // Start with AuthInitial
+    // Listen to Firebase auth state changes
+    _userSubscription = _firebaseAuth.authStateChanges().listen((user) {
+      add(_AuthUserChanged(user)); // Add internal event
+    });
+
+    on<_AuthUserChanged>(_onAuthUserChanged);
+    on<SignInRequested>(_onSignInRequested);
+    on<SignUpRequested>(_onSignUpRequested);
+    on<SignOutRequested>(_onSignOutRequested);
   }
 
-  Future<void> _onSignIn(SignInRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
-    await Future.delayed(const Duration(milliseconds: 900));
-    // TODO: Replace with real auth; this is a dummy check
-    if (event.email.contains('@') && event.password.length >= 6) {
-      emit(AuthAuthenticated());
+  void _onAuthUserChanged(_AuthUserChanged event, Emitter<AuthState> emit) {
+    if (event.user != null) {
+      emit(AuthAuthenticated(event.user!));
     } else {
-      emit(const AuthFailure('Invalid credentials.'));
+      emit(AuthUnauthenticated());
     }
   }
 
-  Future<void> _onSignUp(SignUpRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onSignInRequested(
+      SignInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    await Future.delayed(const Duration(milliseconds: 1200));
-    // TODO: Replace with real sign-up
-    if (event.email.contains('@') && event.password.length >= 6) {
-      emit(AuthAuthenticated());
-    } else {
-      emit(const AuthFailure('Could not create account.'));
+    try {
+      // Basic validation (consider moving to UI or a form validation helper)
+      if (event.email.isEmpty || event.password.isEmpty) {
+        emit(const AuthFailure('Email and password cannot be empty.'));
+        return;
+      }
+      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(event.email)) {
+        emit(const AuthFailure('Invalid email format.'));
+        return;
+      }
+
+      await _firebaseAuth.signInWithEmailAndPassword(
+        email: event.email,
+        password: event.password,
+      );
+      // Auth state will be updated by _onAuthUserChanged via the stream
+    } on FirebaseAuthException catch (e) {
+      emit(AuthFailure(e.message ?? 'Sign in failed. Please try again.'));
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
     }
   }
+
+  Future<void> _onSignUpRequested(
+      SignUpRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      // Basic validation
+      if (event.email.isEmpty || event.password.isEmpty) {
+        emit(const AuthFailure('Email and password cannot be empty.'));
+        return;
+      }
+      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(event.email)) {
+        emit(const AuthFailure('Invalid email format.'));
+        return;
+      }
+      if (event.password.length < 6) {
+        // Firebase requires 6 chars min
+        emit(const AuthFailure('Password must be at least 6 characters.'));
+        return;
+      }
+
+      await _firebaseAuth.createUserWithEmailAndPassword(
+        email: event.email,
+        password: event.password,
+      );
+      // Auth state will be updated by _onAuthUserChanged via the stream
+    } on FirebaseAuthException catch (e) {
+      emit(AuthFailure(e.message ?? 'Sign up failed. Please try again.'));
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<void> _onSignOutRequested(
+      SignOutRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading()); // Optional: show loading state during sign out
+    try {
+      await _firebaseAuth.signOut();
+      // Auth state will be updated by _onAuthUserChanged via the stream
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _userSubscription?.cancel();
+    return super.close();
+  }
+}
+
+class _AuthUserChanged extends AuthEvent {
+  final User? user;
+
+  const _AuthUserChanged(this.user);
+
+  @override
+  List<Object?> get props => [user];
 }
