@@ -3,6 +3,7 @@ import 'package:dice_master/features/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 import 'bloc/splash_bloc.dart';
 import 'bloc/splash_event.dart';
@@ -91,7 +92,13 @@ class _SplashScreenState extends State<SplashScreen>
                               spreadRadius: 2)
                         ],
                       ),
-                      child: Icon(Icons.casino, size: 56, color: cs.onPrimary),
+                      child: Lottie.asset(
+                        'assets/lottie/d20_dice_lottie.json',
+                        width: 120,
+                        height: 120,
+                        repeat: false, // play once like a dice roll
+                        animate: true, // auto start
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text('Dice Master',

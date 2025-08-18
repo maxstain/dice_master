@@ -13,7 +13,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   Future<void> _onStarted(
       SplashStarted event, Emitter<SplashState> emit) async {
     // Simulate startup work & auth check
-    await Future.delayed(const Duration(milliseconds: 1400));
+    await Future.delayed(const Duration(milliseconds: 3000));
     // TODO: Plug your auth status here
     final isAuthenticated = false;
     if (isAuthenticated) {
