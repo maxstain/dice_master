@@ -11,6 +11,8 @@ class HomeLoading extends HomeState {}
 
 class HomeAuthenticated extends HomeState {}
 
+class HomeLobby extends HomeState {}
+
 class HomeNotAuthenticated extends HomeState {}
 
 class HomeError extends HomeState {
@@ -43,4 +45,51 @@ class HomePlayer extends HomeState {
 
   @override
   List<Object?> get props => [playerName];
+}
+
+class HomeSessionCreated extends HomeState {
+  final String sessionId;
+
+  const HomeSessionCreated(this.sessionId);
+
+  @override
+  List<Object?> get props => [sessionId];
+}
+
+class HomeSessionJoined extends HomeState {
+  final String sessionId;
+
+  const HomeSessionJoined(this.sessionId);
+
+  @override
+  List<Object?> get props => [sessionId];
+}
+
+class HomeSessionLeft extends HomeState {
+  final String sessionId;
+
+  const HomeSessionLeft(this.sessionId);
+
+  @override
+  List<Object?> get props => [sessionId];
+}
+
+class HomeSessionUpdated extends HomeState {
+  final String sessionId;
+  final String updatedInfo;
+
+  const HomeSessionUpdated(this.sessionId, this.updatedInfo);
+
+  @override
+  List<Object?> get props => [sessionId, updatedInfo];
+}
+
+class HomeSessionError extends HomeState {
+  final String sessionId;
+  final String errorMessage;
+
+  const HomeSessionError(this.sessionId, this.errorMessage);
+
+  @override
+  List<Object?> get props => [sessionId, errorMessage];
 }
