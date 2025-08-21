@@ -2,6 +2,7 @@ import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
 import 'package:dice_master/features/auth/bloc/auth_event.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_event.dart';
+import 'package:dice_master/features/home/bloc/home_state.dart';
 import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -91,35 +92,73 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50), // full width
-                ),
-                child: const Text('Create New Session'),
-                onPressed: () {
-                  context.read<HomeBloc>().add(CreateSessionRequested());
-                },
+      body: Column(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize:
+                          const Size(double.infinity, 50), // full width
+                    ),
+                    child: const Text('Create New Session'),
+                    onPressed: () {
+                      context.read<HomeBloc>().add(CreateSessionRequested());
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize:
+                          const Size(double.infinity, 50), // full width
+                    ),
+                    child: const Text('Join Existing Session'),
+                    onPressed: () {
+                      _sessionIdController.clear(); // Clear previous input
+                      _showJoinSessionDialog(context);
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50), // full width
-                ),
-                child: const Text('Join Existing Session'),
-                onPressed: () {
-                  _sessionIdController.clear(); // Clear previous input
-                  _showJoinSessionDialog(context);
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 20),
+          BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is HomeLoaded) {
+                if (state.sessions.isEmpty) {
+                  return const Center(child: Text('No active sessions.'));
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: state.sessions.length,
+                  itemBuilder: (context, index) {
+                    final session = state.sessions[index];
+                    return ListTile(
+                      title: Text(session.name),
+                      subtitle: Text('ID: ${session.id}'),
+                      onTap: () {
+                        context
+                            .read<HomeBloc>()
+                            .add(JoinSessionRequested(session.id));
+                      },
+                    );
+                  },
+                );
+              } else if (state is HomeFailure) {
+                return Center(child: Text('Error: ${state.message}'));
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
     );
   }

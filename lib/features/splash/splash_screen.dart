@@ -93,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ],
                       ),
                       child: Lottie.asset(
-                        'assets/lottie/d20_dice_lottie.json',
+                        'assets/lottie/d20_roll.json',
                         width: 120,
                         height: 120,
                         repeat: false, // play once like a dice roll

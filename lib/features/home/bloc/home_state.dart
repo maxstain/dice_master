@@ -1,3 +1,4 @@
+import 'package:dice_master/models/session.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class HomeState extends Equatable {
@@ -5,6 +6,8 @@ abstract class HomeState extends Equatable {
 
   @override
   List<Object?> get props => [];
+
+  get sessions => null;
 }
 
 class HomeLoading extends HomeState {}
@@ -14,6 +17,34 @@ class HomeAuthenticated extends HomeState {}
 class HomeLobby extends HomeState {}
 
 class HomeNotAuthenticated extends HomeState {}
+
+class HomeSession extends HomeState {
+  final String sessionId;
+
+  const HomeSession(this.sessionId);
+
+  @override
+  List<Object?> get props => [sessionId];
+}
+
+class HomeFailure extends HomeState {
+  final String message;
+
+  const HomeFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class HomeSuccess extends HomeState {
+  final String message;
+  final List<Session>? sessions;
+
+  const HomeSuccess(this.message, this.sessions);
+
+  @override
+  List<Object?> get props => [message, sessions];
+}
 
 class HomeError extends HomeState {
   final String message;
