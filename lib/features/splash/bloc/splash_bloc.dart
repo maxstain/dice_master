@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'splash_event.dart';
@@ -14,8 +15,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       SplashStarted event, Emitter<SplashState> emit) async {
     // Simulate startup work & auth check
     await Future.delayed(const Duration(milliseconds: 3000));
-    // TODO: Plug your auth status here
-    final isAuthenticated = false;
+    final isAuthenticated = FirebaseAuth.instance.currentUser != null;
     if (isAuthenticated) {
       emit(SplashNavigateToHome());
     } else {

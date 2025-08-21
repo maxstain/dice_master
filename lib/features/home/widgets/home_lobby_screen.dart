@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
 import 'package:dice_master/features/auth/bloc/auth_event.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_event.dart';
 import 'package:dice_master/features/home/bloc/home_state.dart';
 import 'package:dice_master/features/splash/splash_screen.dart';
+import 'package:dice_master/models/session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -68,7 +71,14 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lobby'),
+        title: const Text(
+          'Lobby',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -100,16 +110,20 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize:
-                          const Size(double.infinity, 50), // full width
-                    ),
-                    child: const Text('Create New Session'),
-                    onPressed: () {
-                      context.read<HomeBloc>().add(CreateSessionRequested());
-                    },
-                  ),
+                  !Platform.isAndroid && !Platform.isIOS
+                      ? ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize:
+                                const Size(double.infinity, 50), // full width
+                          ),
+                          child: const Text('Create New Session'),
+                          onPressed: () {
+                            context
+                                .read<HomeBloc>()
+                                .add(CreateSessionRequested());
+                          },
+                        )
+                      : const SizedBox.shrink(),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -132,7 +146,7 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
               if (state is HomeLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is HomeLoaded) {
-                if (state.sessions.isEmpty) {
+                if (state.sessions == null || state.sessions.isEmpty) {
                   return const Center(child: Text('No active sessions.'));
                 }
                 return ListView.builder(
@@ -140,10 +154,10 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: state.sessions.length,
                   itemBuilder: (context, index) {
-                    final session = state.sessions[index];
+                    final Session session = state.sessions[index];
                     return ListTile(
                       title: Text(session.name),
-                      subtitle: Text('ID: ${session.id}'),
+                      subtitle: Text('Members: ${session.players.length}'),
                       onTap: () {
                         context
                             .read<HomeBloc>()
