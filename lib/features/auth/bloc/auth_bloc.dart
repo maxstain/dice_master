@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,6 +9,7 @@ import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   StreamSubscription<User?>? _userSubscription;
 
   AuthBloc({FirebaseAuth? firebaseAuth})
@@ -16,22 +18,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Start with AuthInitial
     // Listen to Firebase auth state changes
     _userSubscription = _firebaseAuth.authStateChanges().listen((user) {
-      add(_AuthUserChanged(user)); // Add internal event
+      add(AuthUserChanged(user)); // Add internal event
     });
 
-    on<_AuthUserChanged>(_onAuthUserChanged);
+    on<AuthUserChanged>(_onAuthUserChanged);
     on<SignInRequested>(_onSignInRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<SignOutRequested>(_onSignOutRequested);
   }
 
-  void _onAuthUserChanged(_AuthUserChanged event, Emitter<AuthState> emit) {
-    if (event.user != null) {
-      print('AuthBloc: User Authenticated - ${event.user!.uid}');
-      emit(AuthAuthenticated(event.user!));
+  void _onAuthUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
+    final user = event.user;
+    if (user != null) {
+      // Check if already authenticated with the same user
+      if (state is AuthAuthenticated &&
+          (state as AuthAuthenticated).user.uid == user.uid) {
+        print(
+            'AuthBloc: AuthUserChanged - User ${user.uid} already authenticated. No state change.');
+        return;
+      }
+      print('AuthBloc: User Authenticated - ${user.uid}');
+      emit(AuthAuthenticated(user));
     } else {
-      print(
-          'AuthBloc: User Unauthenticated - Emitting AuthUnauthenticated'); // Key log
+      // Check if already unauthenticated
+      if (state is AuthUnauthenticated) {
+        print(
+            'AuthBloc: AuthUserChanged - Already unauthenticated. No state change.');
+        return;
+      }
+      print('AuthBloc: User Unauthenticated - Emitting AuthUnauthenticated');
       emit(AuthUnauthenticated());
     }
   }
@@ -93,6 +108,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
       // Set display name after user creation
       await user.user?.updateProfile(displayName: event.username);
+      await _firestore.collection('users').doc(user.user!.uid).set({
+        'username': event.username,
+        'email': event.email,
+        'profilePictureUrl': user.user!.photoURL ?? '',
+        'createdAt': DateTime.now(),
+        'updatedAt': DateTime.now(),
+      });
       // Auth state will be updated by _onAuthUserChanged via the stream
     } on FirebaseAuthException catch (e) {
       emit(AuthFailure(e.message ?? 'Sign up failed. Please try again.'));
@@ -103,7 +125,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onSignOutRequested(
       SignOutRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading()); // Optional: show loading state during sign out
+    emit(AuthLoading()); // Ensures loading state is emitted
     try {
       await _firebaseAuth.signOut();
       // Auth state will be updated by _onAuthUserChanged via the stream
@@ -117,13 +139,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _userSubscription?.cancel();
     return super.close();
   }
-}
-
-class _AuthUserChanged extends AuthEvent {
-  final User? user;
-
-  const _AuthUserChanged(this.user);
-
-  @override
-  List<Object?> get props => [user];
 }

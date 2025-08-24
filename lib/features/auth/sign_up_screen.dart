@@ -50,9 +50,11 @@ class _SignUpScreenState extends State<SignUpScreen>
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Account created! Please sign in.')));
-            Navigator.of(context).pop();
+            // OPTIONAL: Show a success message, but no navigation here.
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   const SnackBar(content: Text('Account created successfully!')),
+            // );
+            // REMOVED: Navigator.of(context).pop();
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
@@ -105,7 +107,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                                       labelText: 'Username',
                                       prefixIcon: Icon(Icons.person_outline)),
                                   keyboardType: TextInputType.text,
-                                  validator: (v) => v != null
+                                  validator: (v) => v != null &&
+                                          v.isNotEmpty // Added isNotEmpty check
                                       ? null
                                       : 'Enter a valid username',
                                 ),
@@ -145,7 +148,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   decoration: const InputDecoration(
                                       labelText: 'Confirm password',
                                       prefixIcon: Icon(Icons.lock_reset)),
-                                  obscureText: true,
+                                  obscureText:
+                                      true, // Should be true for confirm password
                                   validator: (v) => v == _password.text
                                       ? null
                                       : 'Passwords do not match',
@@ -174,8 +178,10 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 ),
                                 const SizedBox(height: 10),
                                 TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).maybePop(),
+                                  onPressed: loading
+                                      ? null
+                                      : () => // Disable if loading
+                                          Navigator.of(context).maybePop(),
                                   child: const Text('Back to Sign In'),
                                 ),
                               ],

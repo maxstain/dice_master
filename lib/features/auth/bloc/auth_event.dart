@@ -9,6 +9,15 @@ abstract class AuthEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class AuthUserChanged extends AuthEvent {
+  final User? user;
+
+  const AuthUserChanged(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
 class SignInRequested extends AuthEvent {
   final String email;
   final String password;
@@ -32,13 +41,3 @@ class SignUpRequested extends AuthEvent {
 }
 
 class SignOutRequested extends AuthEvent {} // New event
-
-// Internal event for Firebase auth state changes
-class _AuthUserChanged extends AuthEvent {
-  final User? user;
-
-  const _AuthUserChanged(this.user);
-
-  @override
-  List<Object?> get props => [user];
-}

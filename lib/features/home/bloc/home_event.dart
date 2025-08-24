@@ -1,4 +1,3 @@
-import 'package:dice_master/models/session.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class HomeEvent extends Equatable {
@@ -8,47 +7,58 @@ abstract class HomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class CreateSessionRequested extends HomeEvent {}
+class CreateCampaignRequested extends HomeEvent {
+  final String? campaignName;
 
-class JoinSessionRequested extends HomeEvent {
-  final String sessionId;
-
-  const JoinSessionRequested(this.sessionId);
+  const CreateCampaignRequested({this.campaignName});
 
   @override
-  List<Object?> get props => [sessionId];
+  List<Object?> get props => [campaignName];
 }
 
-class SessionUpdated extends HomeEvent {
-  // You might want to add properties here to reflect session changes
-  // For example: final UserRole userRole;
-  const SessionUpdated();
+class JoinCampaignRequested extends HomeEvent {
+  final String campaignId;
+
+  const JoinCampaignRequested(this.campaignId);
+
+  @override
+  List<Object?> get props => [campaignId];
+}
+
+class CampaignUpdated extends HomeEvent {
+  const CampaignUpdated();
 
   @override
   List<Object?> get props => [];
 }
 
-class LeaveSessionRequested extends HomeEvent {
-  const LeaveSessionRequested();
+class LeaveCampaignRequested extends HomeEvent {
+  const LeaveCampaignRequested();
 
   @override
   List<Object?> get props => [];
 }
 
 class HomeStarted extends HomeEvent {
+  // This is for user-initiated refresh
   const HomeStarted();
 
   @override
   List<Object?> get props => [];
 }
 
-// The HomeLoaded event can be used to trigger UI updates
-class HomeLoaded extends HomeEvent {
-  final String message;
-  final List<Session> sessions;
-
-  const HomeLoaded(this.message, this.sessions);
+class TriggerInitialLoad extends HomeEvent {
+  // New event for initial load
+  const TriggerInitialLoad();
 
   @override
-  List<Object?> get props => [message, sessions];
+  List<Object?> get props => [];
 }
+
+// HomeLoaded event was previously discussed. If it was intended as a state, it should be in home_state.dart.
+// If it was an event, its purpose needs to be clear. For now, assuming HomeStarted and TriggerInitialLoad cover needs.
+// class HomeLoaded extends HomeEvent {
+//   const HomeLoaded();
+//   @override
+//   List<Object?> get props => [];
+// }

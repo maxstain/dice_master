@@ -1,4 +1,4 @@
-import 'package:dice_master/models/session.dart';
+import 'package:dice_master/models/campaign.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class HomeState extends Equatable {
@@ -7,7 +7,7 @@ abstract class HomeState extends Equatable {
   @override
   List<Object?> get props => [];
 
-  get sessions => List<Session>.empty;
+  get campaigns => List<Campaign>.empty;
 }
 
 class HomeLoading extends HomeState {}
@@ -18,10 +18,10 @@ class HomeLobby extends HomeState {}
 
 class HomeNotAuthenticated extends HomeState {}
 
-class HomeSession extends HomeState {
+class HomeCampaign extends HomeState {
   final String sessionId;
 
-  const HomeSession(this.sessionId);
+  const HomeCampaign(this.sessionId);
 
   @override
   List<Object?> get props => [sessionId];
@@ -38,12 +38,12 @@ class HomeFailure extends HomeState {
 
 class HomeSuccess extends HomeState {
   final String message;
-  final List<Session>? sessions;
+  final List<Campaign>? campaigns;
 
-  const HomeSuccess(this.message, this.sessions);
+  const HomeSuccess(this.message, this.campaigns);
 
   @override
-  List<Object?> get props => [message, sessions];
+  List<Object?> get props => [message, campaigns];
 }
 
 class HomeError extends HomeState {
@@ -78,48 +78,48 @@ class HomePlayer extends HomeState {
   List<Object?> get props => [playerName];
 }
 
-class HomeSessionCreated extends HomeState {
+class HomeCampaignCreated extends HomeState {
   final String sessionId;
 
-  const HomeSessionCreated(this.sessionId);
+  const HomeCampaignCreated(this.sessionId);
 
   @override
   List<Object?> get props => [sessionId];
 }
 
-class HomeSessionJoined extends HomeState {
+class HomeCampaignJoined extends HomeState {
   final String sessionId;
 
-  const HomeSessionJoined(this.sessionId);
+  const HomeCampaignJoined(this.sessionId);
 
   @override
   List<Object?> get props => [sessionId];
 }
 
-class HomeSessionLeft extends HomeState {
+class HomeCampaignLeft extends HomeState {
   final String sessionId;
 
-  const HomeSessionLeft(this.sessionId);
+  const HomeCampaignLeft(this.sessionId);
 
   @override
   List<Object?> get props => [sessionId];
 }
 
-class HomeSessionUpdated extends HomeState {
+class HomeCampaignUpdated extends HomeState {
   final String sessionId;
   final String updatedInfo;
 
-  const HomeSessionUpdated(this.sessionId, this.updatedInfo);
+  const HomeCampaignUpdated(this.sessionId, this.updatedInfo);
 
   @override
   List<Object?> get props => [sessionId, updatedInfo];
 }
 
-class HomeSessionError extends HomeState {
+class HomeCampaignError extends HomeState {
   final String sessionId;
   final String errorMessage;
 
-  const HomeSessionError(this.sessionId, this.errorMessage);
+  const HomeCampaignError(this.sessionId, this.errorMessage);
 
   @override
   List<Object?> get props => [sessionId, errorMessage];

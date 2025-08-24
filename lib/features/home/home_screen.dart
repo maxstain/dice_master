@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
               if (BlocProvider.of<HomeBloc>(context).state
                   is HomeDungeonMaster) {
                 BlocProvider.of<HomeBloc>(context)
-                    .add(const LeaveSessionRequested());
+                    .add(const LeaveCampaignRequested());
               }
             });
           } else if (state is HomePlayer) {
@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
               // This is called when the HomePlayerScreen is popped
               if (BlocProvider.of<HomeBloc>(context).state is HomePlayer) {
                 BlocProvider.of<HomeBloc>(context)
-                    .add(const LeaveSessionRequested());
+                    .add(const LeaveCampaignRequested());
               }
             });
           }
