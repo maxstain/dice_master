@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/models/campaign.dart';
 import 'package:flutter/material.dart';
 
 class CampaignScreen extends StatefulWidget {
@@ -13,7 +14,6 @@ class CampaignScreen extends StatefulWidget {
 class _CampaignScreenState extends State<CampaignScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  var campaignName = "";
 
   @override
   void initState() {
@@ -22,12 +22,6 @@ class _CampaignScreenState extends State<CampaignScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     );
-
-    _getCampaignName(widget.campaignId).then((name) {
-      setState(() {
-        campaignName = name;
-      });
-    });
   }
 
   @override
@@ -36,28 +30,64 @@ class _CampaignScreenState extends State<CampaignScreen>
     super.dispose();
   }
 
+  Future<Campaign> _getCampaign(String campaignId) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    try {
+      DocumentSnapshot campaignSnapshot =
+          await firestore.collection('campaigns').doc(campaignId).get();
+
+      if (campaignSnapshot.exists) {
+        return Campaign.fromJson(
+            campaignSnapshot.data() as Map<String, dynamic>);
+      } else {
+        return Campaign.empty();
+      }
+    } catch (e) {
+      print('Error fetching campaign: $e');
+      return Campaign.empty();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(campaignName),
-        centerTitle: true,
-      ),
-    );
-  }
-}
+    return FutureBuilder<Campaign>(
+      future: _getCampaign(widget.campaignId),
+      builder: (context, snapshot) {
+        // 🔄 Loading state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-Future<String> _getCampaignName(String campaignId) async {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  try {
-    DocumentSnapshot campaignSnapshot =
-        await firestore.collection('campaigns').doc(campaignId).get();
-    if (campaignSnapshot.exists) {
-      return campaignSnapshot['title'];
-    } else {
-      return "Campaign not found";
-    }
-  } catch (e) {
-    return "Error: $e";
+        // ❌ Error state
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text("Error loading campaign")),
+          );
+        }
+
+        // 📦 Loaded state
+        final campaign = snapshot.data ?? Campaign.empty();
+
+        if (campaign.isEmpty()) {
+          return const Scaffold(
+            body: Center(child: Text("Campaign not found")),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(campaign.title),
+            centerTitle: true,
+          ),
+          body: const SingleChildScrollView(
+            child: Column(
+              children: [],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

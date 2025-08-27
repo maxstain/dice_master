@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Campaign {
-  // Retitled from Session if it was Session before
   final String id;
   final String title;
   final String hostId;
@@ -60,5 +59,27 @@ class Campaign {
   @override
   String toString() {
     return 'Campaign(id: $id, title: $title, hostId: $hostId, players: $players, sessionCode: $sessionCode, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  static Campaign empty() {
+    return Campaign(
+      id: 'DEFAULT_ID',
+      title: 'Untitled Campaign',
+      hostId: 'DEFAULT_HOST_ID',
+      players: [],
+      sessionCode: 'NO_CODE',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  bool isEmpty() {
+    return id == 'DEFAULT_ID' &&
+        title == 'Untitled Campaign' &&
+        hostId == 'DEFAULT_HOST_ID' &&
+        players.isEmpty &&
+        sessionCode == 'NO_CODE' &&
+        createdAt == DateTime.now() &&
+        updatedAt == DateTime.now();
   }
 }
