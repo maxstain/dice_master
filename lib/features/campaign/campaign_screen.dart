@@ -1,6 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/features/home/bloc/home_bloc.dart';
+import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:dice_master/models/campaign.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../home/bloc/home_event.dart';
 
 class CampaignScreen extends StatefulWidget {
   final String campaignId;
@@ -80,6 +85,22 @@ class _CampaignScreenState extends State<CampaignScreen>
           appBar: AppBar(
             title: Text(campaign.title),
             centerTitle: true,
+            actions: [
+              IconButton(
+                onPressed: () => {
+                  context
+                      .read<HomeBloc>()
+                      .add(LeaveCampaignRequested(campaignId: campaign.id)),
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const SplashScreen(),
+                    ),
+                    (route) => false,
+                  )
+                },
+                icon: const Icon(Icons.exit_to_app),
+              ),
+            ],
           ),
           body: const SingleChildScrollView(
             child: Column(
