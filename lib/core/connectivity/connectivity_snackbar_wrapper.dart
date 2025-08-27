@@ -38,8 +38,14 @@ class _ConnectivitySnackbarWrapperState
       _wasConnected = false;
       scaffoldMessenger.showSnackBar(
         const SnackBar(
-          content: Text('No internet connection'),
-          backgroundColor: Colors.red,
+          content: Text(
+            'No internet connection',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.redAccent,
           duration: Duration(days: 1),
           // Keep it shown until connection is back or manually dismissed
           behavior: SnackBarBehavior.floating, // Or .fixed
@@ -50,8 +56,14 @@ class _ConnectivitySnackbarWrapperState
         // Only show "restored" if it was previously disconnected
         scaffoldMessenger.showSnackBar(
           const SnackBar(
-            content: Text('Internet connection restored'),
-            backgroundColor: Colors.green,
+            content: Text(
+              'Internet connection restored',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            backgroundColor: Colors.greenAccent,
             duration: Duration(seconds: 3),
             behavior: SnackBarBehavior.floating,
           ),

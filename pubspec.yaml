@@ -20,11 +20,29 @@ dependencies:
   firebase_app_check: ^0.4.0
   lottie: ^3.3.1
   connectivity_plus: ^6.1.5
+  rename_app: ^1.6.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  icons_launcher: ^3.0.2
+
+icons_launcher:
+  image_path: "assets/images/Logo.png"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
+    windows:
+      enable: true
+    macos:
+      enable: true
+    linux:
+      enable: true
+    web:
+      enable: true
 
 flutter:
   uses-material-design: true
