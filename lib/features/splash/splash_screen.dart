@@ -3,7 +3,6 @@ import 'package:dice_master/features/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 
 import 'bloc/splash_bloc.dart';
 import 'bloc/splash_event.dart';
@@ -92,20 +91,12 @@ class _SplashScreenState extends State<SplashScreen>
                               spreadRadius: 2)
                         ],
                       ),
-                      child: Lottie.asset(
-                        'assets/lottie/d20_roll.json',
+                      child: Image.asset(
+                        'assets/images/Logo-removebg-preview.png',
                         width: 120,
                         height: 120,
-                        repeat: false, // play once like a dice roll
-                        animate: true, // auto start
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text('Dice Master',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
                     Text('D&D GM & Player Companion',
                         style: Theme.of(context).textTheme.labelLarge),
