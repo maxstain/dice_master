@@ -1,40 +1,41 @@
-import 'package:dice_master/features/home/bloc/home_bloc.dart';
-import 'package:dice_master/features/home/bloc/home_event.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeDungeonMasterScreen extends StatelessWidget {
+class HomeDungeonMasterScreen extends StatefulWidget {
   final String dmName;
 
   const HomeDungeonMasterScreen({super.key, required this.dmName});
 
   @override
+  State<HomeDungeonMasterScreen> createState() =>
+      _HomeDungeonMasterScreenState();
+}
+
+class _HomeDungeonMasterScreenState extends State<HomeDungeonMasterScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('DM Screen: $dmName'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<HomeBloc>().add(const HomeStarted());
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              // logout the user or perform any necessary cleanup
-              context.read<HomeBloc>().add(const LeaveCampaignRequested());
-              // Navigate back to the splash screen
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-          ),
-        ],
+        title: const Text('Dungeon Master Screen'),
       ),
-      body: Center(
-        child: Text(
-            'Welcome, Dungeon Master $dmName! This is your control panel.'),
-        // You'll add DM-specific UI elements here
+      body: SingleChildScrollView(
+        child: Column(
+          children: [Text("Hello, ${widget.dmName}")],
+        ),
       ),
     );
   }

@@ -6,7 +6,7 @@ import 'package:dice_master/models/campaign.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'home_event.dart';
+import 'campaign_event.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final _firebaseAuth = FirebaseAuth.instance;

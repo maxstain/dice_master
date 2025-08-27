@@ -1,3 +1,5 @@
+import 'package:dice_master/core/connectivity/connectivity_cubit.dart';
+import 'package:dice_master/core/connectivity/connectivity_snackbar_wrapper.dart';
 import 'package:dice_master/features/splash/bloc/splash_bloc.dart';
 import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -25,6 +27,7 @@ class DiceMasterApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(create: (_) => ConnectivityCubit()),
         BlocProvider(
           // Provide SplashBloc here
           create: (context) => SplashBloc(),
@@ -42,6 +45,9 @@ class DiceMasterApp extends StatelessWidget {
             theme: DiceThemes.light(),
             darkTheme: DiceThemes.dark(),
             home: const SplashScreen(),
+            builder: (context, child) {
+              return ConnectivitySnackbarWrapper(child: child!);
+            },
           );
         },
       ),

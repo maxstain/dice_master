@@ -1,15 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class HomePlayerScreen extends StatefulWidget {
-  final String playerName;
+class ManagementScreen extends StatefulWidget {
+  final UserCredential user;
 
-  const HomePlayerScreen({super.key, required this.playerName});
+  const ManagementScreen({super.key, required this.user});
 
   @override
-  State<HomePlayerScreen> createState() => _HomePlayerScreenState();
+  State<ManagementScreen> createState() => _ManagementScreenState();
 }
 
-class _HomePlayerScreenState extends State<HomePlayerScreen>
+class _ManagementScreenState extends State<ManagementScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -29,12 +30,7 @@ class _HomePlayerScreenState extends State<HomePlayerScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Player Screen'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [Text("Hello, ${widget.playerName}")],
-        ),
+        title: Text(widget.user.user!.displayName!),
       ),
     );
   }
