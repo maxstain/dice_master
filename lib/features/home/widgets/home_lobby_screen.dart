@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
 import 'package:dice_master/features/auth/bloc/auth_event.dart';
+import 'package:dice_master/features/campaign/campaign_screen.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_event.dart';
 import 'package:dice_master/features/home/bloc/home_state.dart';
@@ -258,6 +259,13 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                                 campaign
                                     .id)); // This might re-add the player if already in list
                             // Or it could be used to enter a campaign screen.
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => CampaignScreen(
+                                  campaignId: campaign.id,
+                                ),
+                              ),
+                            );
                           },
                         ),
                       );
