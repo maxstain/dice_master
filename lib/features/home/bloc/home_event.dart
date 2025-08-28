@@ -37,6 +37,8 @@ class LeaveCampaignRequested extends HomeEvent {
 
   @override
   List<Object?> get props => [];
+
+  String? get campaignId => null;
 }
 
 class HomeStarted extends HomeEvent {

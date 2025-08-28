@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/models/character.dart';
 
 class Campaign {
   final String id;
   final String title;
   final String hostId;
-  final List<String> players;
+  final List<Character> players;
   final String sessionCode;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -28,9 +29,8 @@ class Campaign {
       hostId: json['hostId'] as String? ?? 'DEFAULT_HOST_ID',
       // Provide default
       players: (json['players'] as List<dynamic>?)
-              ?.map((e) =>
-                  e as String? ??
-                  'INVALID_PLAYER_ID') // Also make player ID parsing safer
+              ?.map((playerJson) =>
+                  Character.fromJson(playerJson as Map<String, dynamic>))
               .toList() ??
           [],
       sessionCode: json['sessionCode'] as String? ?? 'NO_CODE',

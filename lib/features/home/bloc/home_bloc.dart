@@ -125,7 +125,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       DocumentReference ref = await firestore.collection('campaigns').add({
         'title': event.campaignName ?? 'New Campaign',
         'hostId': currentUser.uid,
-        'players': [],
         'sessionCode': FirebaseFirestore.instance
             .collection('campaigns')
             .doc()
@@ -134,8 +133,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             .toUpperCase(),
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-        // 'id': null, // ID will be set in the next step
       });
+
+      // Initialize the players subcollection.
+      await ref.collection('players').add({});
 
       await ref
           .update({'id': ref.id}); // Store the document ID within the document
@@ -158,7 +159,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     // emit(HomeLoading()); // Similar to create, consider UI impact.
     final currentUser = _firebaseAuth.currentUser;
     if (currentUser == null) {
-      emit(HomeFailure('User not authenticated to join a campaign.'));
+      emit(const HomeFailure('User not authenticated to join a campaign.'));
       print("HomeBloc: User not authenticated for JoinCampaignRequested.");
       return;
     }
@@ -174,8 +175,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         return;
       }
 
-      await campaignDocRef.update({
-        'players': FieldValue.arrayUnion([currentUser.uid])
+      await campaignDocRef.collection('players').doc(currentUser.uid).update({
+        'name': currentUser.displayName ?? 'Anonymous',
+        'role': 'Adventurer',
+        'level': 1,
+        'hp': 6,
+        'items': FieldValue.arrayUnion([]),
+        'imageUrl': currentUser.photoURL ?? '',
       });
 
       print(
@@ -196,13 +202,35 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     print("HomeBloc: _onLeaveCampaignRequestedHandler triggered.");
     // Actual logic to remove player from Firestore campaign document would go here.
     // Example:
-    // final currentUser = _firebaseAuth.currentUser;
-    // if (currentUser != null && state is HomePlayer) { // Assuming state holds current campaign
-    //   final campaignId = (state as HomePlayer).campaignId; // Need campaignId to leave
-    //   await firestore.collection('campaigns').doc(campaignId).update({
-    //     'players': FieldValue.arrayRemove([currentUser.uid])
-    //   });
-    // }
+    final currentUser = _firebaseAuth.currentUser;
+    if (currentUser != null && state is HomePlayer) {
+      // Assuming state holds current campaign
+      try {
+        final campaignDocRef =
+            firestore.collection('campaigns').doc(event.campaignId);
+        final campaignDoc = await campaignDocRef.get();
+
+        if (!campaignDoc.exists) {
+          emit(HomeFailure('Campaign with ID ${event.campaignId} not found.'));
+          print(
+              "HomeBloc: Campaign ${event.campaignId} not found for leaving.");
+          return;
+        }
+
+        await campaignDocRef
+            .collection('players')
+            .doc(currentUser.uid)
+            .delete();
+
+        print(
+            "HomeBloc: User ${currentUser.uid} left campaign ${event.campaignId}");
+      } catch (e, stackTrace) {
+        print('HomeBloc: Failed to leave campaign: $e');
+        print('HomeBloc: Stacktrace for campaign leaving failure: $stackTrace');
+        emit(HomeFailure('Failed to leave campaign: ${e.toString()}'));
+        return;
+      }
+    }
     // After leaving, refresh campaign list or navigate
     add(const HomeStarted()); // Refresh list
     // Or emit a state that causes UI to go back to lobby explicitly
