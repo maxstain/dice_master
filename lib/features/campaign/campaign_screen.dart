@@ -1,79 +1,55 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dice_master/features/home/bloc/home_bloc.dart';
-import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:dice_master/models/campaign.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../home/bloc/home_event.dart';
-
-class CampaignScreen extends StatefulWidget {
+class CampaignScreen extends StatelessWidget {
   final String campaignId;
 
   const CampaignScreen({super.key, required this.campaignId});
 
-  @override
-  State<CampaignScreen> createState() => _CampaignScreenState();
-}
-
-class _CampaignScreenState extends State<CampaignScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<Campaign> _getCampaign(String campaignId) async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    try {
-      DocumentSnapshot campaignSnapshot =
-          await firestore.collection('campaigns').doc(campaignId).get();
-
-      if (campaignSnapshot.exists) {
-        return Campaign.fromJson(
-            campaignSnapshot.data() as Map<String, dynamic>);
+  // 🔥 Campaign document stream
+  Stream<Campaign> _campaignStream(String campaignId) {
+    return FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(campaignId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists) {
+        return Campaign.fromJson(snapshot.data() as Map<String, dynamic>);
       } else {
         return Campaign.empty();
       }
-    } catch (e) {
-      print('Error fetching campaign: $e');
-      return Campaign.empty();
-    }
+    });
+  }
+
+  // 🔥 Players subcollection stream
+  Stream<QuerySnapshot<Map<String, dynamic>>> _playersStream(
+      String campaignId) {
+    return FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(campaignId)
+        .collection('players')
+        .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Campaign>(
-      future: _getCampaign(widget.campaignId),
-      builder: (context, snapshot) {
-        // 🔄 Loading state
-        if (snapshot.connectionState == ConnectionState.waiting) {
+    return StreamBuilder<Campaign>(
+      stream: _campaignStream(campaignId),
+      builder: (context, campaignSnapshot) {
+        if (campaignSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // ❌ Error state
-        if (snapshot.hasError) {
+        if (campaignSnapshot.hasError) {
           return const Scaffold(
             body: Center(child: Text("Error loading campaign")),
           );
         }
 
-        // 📦 Loaded state
-        final campaign = snapshot.data ?? Campaign.empty();
+        final campaign = campaignSnapshot.data ?? Campaign.empty();
 
         if (campaign.isEmpty()) {
           return const Scaffold(
@@ -85,27 +61,51 @@ class _CampaignScreenState extends State<CampaignScreen>
           appBar: AppBar(
             title: Text(campaign.title),
             centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: () => {
-                  context
-                      .read<HomeBloc>()
-                      .add(LeaveCampaignRequested(campaignId: campaign.id)),
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => const SplashScreen(),
-                    ),
-                    (route) => false,
-                  )
-                },
-                icon: const Icon(Icons.exit_to_app),
-              ),
-            ],
           ),
-          body: const SingleChildScrollView(
-            child: Column(
-              children: [],
-            ),
+          body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _playersStream(campaignId),
+            builder: (context, playersSnapshot) {
+              if (playersSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (playersSnapshot.hasError) {
+                return const Center(child: Text("Error loading players"));
+              }
+
+              final playersDocs = playersSnapshot.data?.docs ?? [];
+
+              if (playersDocs.isEmpty) {
+                return const Center(child: Text("No players yet"));
+              }
+
+              return ListView.builder(
+                itemCount: playersDocs.length,
+                itemBuilder: (context, index) {
+                  final playerData = playersDocs[index].data();
+                  final playerName = playerData['name'] ?? 'Unknown';
+                  final playerRole = playerData['role'] ?? 'Adventurer';
+
+                  return ListTile(
+                    leading: const Icon(Icons.person),
+                    title: Text(
+                      playerName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    subtitle: Text(
+                      playerRole,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
           ),
         );
       },
