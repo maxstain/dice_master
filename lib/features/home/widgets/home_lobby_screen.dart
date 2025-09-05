@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
 import 'package:dice_master/features/auth/bloc/auth_event.dart';
 import 'package:dice_master/features/campaign/campaign_screen.dart';
@@ -184,25 +182,15 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // Consider if this platform check is still what you want for create button visibility
-                if (Platform.isAndroid ||
-                    Platform.isIOS ||
-                    Platform.isFuchsia ||
-                    Platform.isLinux ||
-                    Platform.isMacOS ||
-                    Platform
-                        .isWindows) // More inclusive if create is for all platforms
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: const Text('Create New Campaign'),
-                    onPressed: () {
-                      _showCreateCampaignDialog(context);
-                    },
-                  )
-                else
-                  const SizedBox.shrink(),
-                // If you want to hide it on web, for example
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: const Text('Create New Campaign'),
+                  onPressed: () {
+                    _showCreateCampaignDialog(context);
+                  },
+                ),
 
                 const SizedBox(height: 20),
                 ElevatedButton(
