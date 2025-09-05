@@ -1,4 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/core/widgets/ThemedIconButton.dart';
+import 'package:dice_master/features/campaign/views/characters.dart';
+import 'package:dice_master/features/campaign/views/combat.dart';
+import 'package:dice_master/features/campaign/views/dashboard.dart';
+import 'package:dice_master/features/campaign/views/sessions.dart';
 import 'package:dice_master/models/campaign.dart';
 import 'package:flutter/material.dart';
 
@@ -22,18 +27,12 @@ class CampaignScreen extends StatelessWidget {
     });
   }
 
-  // 🔥 Players subcollection stream
-  Stream<QuerySnapshot<Map<String, dynamic>>> _playersStream(
-      String campaignId) {
-    return FirebaseFirestore.instance
-        .collection('campaigns')
-        .doc(campaignId)
-        .collection('players')
-        .snapshots();
-  }
-
   @override
   Widget build(BuildContext context) {
+    int pageIndex = 0;
+
+    final pageController = PageController(initialPage: pageIndex);
+
     return StreamBuilder<Campaign>(
       stream: _campaignStream(campaignId),
       builder: (context, campaignSnapshot) {
@@ -62,50 +61,128 @@ class CampaignScreen extends StatelessWidget {
             title: Text(campaign.title),
             centerTitle: true,
           ),
-          body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: _playersStream(campaignId),
-            builder: (context, playersSnapshot) {
-              if (playersSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (playersSnapshot.hasError) {
-                return const Center(child: Text("Error loading players"));
-              }
-
-              final playersDocs = playersSnapshot.data?.docs ?? [];
-
-              if (playersDocs.isEmpty) {
-                return const Center(child: Text("No players yet"));
-              }
-
-              return ListView.builder(
-                itemCount: playersDocs.length,
-                itemBuilder: (context, index) {
-                  final playerData = playersDocs[index].data();
-                  final playerName = playerData['name'] ?? 'Unknown';
-                  final playerRole = playerData['role'] ?? 'Adventurer';
-
-                  return ListTile(
-                    leading: const Icon(Icons.person),
-                    title: Text(
-                      playerName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.white,
+          body: Row(
+            children: [
+              Container(
+                color: Colors.black38,
+                width: 300,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Image.asset(
+                          "assets/images/Logo-removebg-preview.png",
+                          width: 100,
+                          height: 100,
+                        ),
+                        const Text(
+                          "Dice Master",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          ThemedIconButton(
+                            icon: const Icon(
+                              Icons.home,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              pageController.jumpToPage(0);
+                            },
+                            text: 'Dashboard',
+                          ),
+                          const SizedBox(height: 8.0), // Added for spacing
+                          ThemedIconButton(
+                            icon: const Icon(
+                              Icons.group, // Icon for Characters
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              pageController
+                                  .jumpToPage(1); // Index for CharactersView
+                            },
+                            text: 'Characters',
+                          ),
+                          const SizedBox(height: 8.0), // Added for spacing
+                          ThemedIconButton(
+                            icon: const Icon(
+                              Icons.list_alt, // Icon for Sessions
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              pageController
+                                  .jumpToPage(2); // Index for SessionsView
+                            },
+                            text: 'Sessions',
+                          ),
+                          const SizedBox(height: 8.0), // Added for spacing
+                          ThemedIconButton(
+                            icon: const Icon(
+                              Icons.shield_outlined, // Icon for Combat
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              pageController
+                                  .jumpToPage(3); // Index for CombatsView
+                            },
+                            text: 'Combat',
+                          ),
+                        ],
                       ),
                     ),
-                    subtitle: Text(
-                      playerRole,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: PageView(
+                  controller: pageController,
+                  children: [
+                    const DashboardView(),
+                    CharactersView(
+                      campaignId: campaignId,
                     ),
-                  );
-                },
-              );
-            },
+                    const SessionsView(),
+                    const CombatsView()
+                  ],
+                ),
+              )
+            ],
           ),
         );
       },
