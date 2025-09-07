@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
 class CharactersView extends StatefulWidget {
@@ -44,13 +45,13 @@ class _CharactersViewState extends State<CharactersView> {
               itemCount: playersDocs.length,
               itemBuilder: (context, index) {
                 final playerData = playersDocs[index].data();
-                final playerName = playerData['name'] ?? 'Unknown';
-                final playerRole = playerData['role'] ?? 'Adventurer';
+                final Character character =
+                    Character.fromJson(playerData['character'] ?? {});
 
                 return ListTile(
                   leading: const Icon(Icons.person),
                   title: Text(
-                    playerName,
+                    character.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -58,7 +59,7 @@ class _CharactersViewState extends State<CharactersView> {
                     ),
                   ),
                   subtitle: Text(
-                    playerRole,
+                    "Role: ${character.role}\nHP: ${character.hp}\nLevel: ${character.level}",
                     style: const TextStyle(
                       color: Colors.white,
                     ),
