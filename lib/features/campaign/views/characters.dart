@@ -3,7 +3,7 @@ import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
 class CharactersView extends StatefulWidget {
-  final campaignId;
+  final String campaignId;
 
   const CharactersView({super.key, required this.campaignId});
 
