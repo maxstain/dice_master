@@ -47,45 +47,61 @@ class _CharactersViewState extends State<CharactersView> {
                 final playerData = playersDocs[index].data();
                 final Character character = Character.fromJson(playerData);
 
-                return ListTile(
+                return Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius:
+                        BorderRadius.circular(12.0), // Slightly more rounded
                   ),
-                  tileColor: Colors.blueGrey.shade800,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  style: ListTileStyle.drawer,
-                  leading: const Icon(Icons.person),
-                  title: Text(
-                    character.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                  subtitle: Text(
-                    "Role: ${character.role},\tLevel: ${character.level}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  trailing: SizedBox(
-                    width: 80,
+                  color: Colors.blueGrey.shade800,
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 8.0), // Adjusted margin
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0), // Consistent padding
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.favorite,
-                          color: Colors.redAccent,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "${character.hp}",
-                          style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                        const Icon(Icons.person,
+                            color: Colors.white, size: 40), // Leading Icon
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                character.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                "Role: ${character.role}, Level: ${character.level}",
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        const SizedBox(width: 16.0), // Spacer before trailing
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.favorite,
+                              color: Colors.redAccent,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "${character.hp}",
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
