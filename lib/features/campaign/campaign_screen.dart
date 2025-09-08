@@ -183,7 +183,7 @@ class CampaignScreen extends StatelessWidget {
                       const CombatsView()
                     ],
                   ),
-                )
+                ),
               ],
             ),
           );

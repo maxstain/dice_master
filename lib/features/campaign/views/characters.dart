@@ -45,10 +45,16 @@ class _CharactersViewState extends State<CharactersView> {
               itemCount: playersDocs.length,
               itemBuilder: (context, index) {
                 final playerData = playersDocs[index].data();
-                final Character character =
-                    Character.fromJson(playerData['character'] ?? {});
+                final Character character = Character.fromJson(playerData);
 
                 return ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  tileColor: Colors.blueGrey.shade800,
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
+                  style: ListTileStyle.drawer,
                   leading: const Icon(Icons.person),
                   title: Text(
                     character.name,
@@ -59,9 +65,29 @@ class _CharactersViewState extends State<CharactersView> {
                     ),
                   ),
                   subtitle: Text(
-                    "Role: ${character.role}\nHP: ${character.hp}\nLevel: ${character.level}",
+                    "Role: ${character.role},\tLevel: ${character.level}",
                     style: const TextStyle(
                       color: Colors.white,
+                    ),
+                  ),
+                  trailing: SizedBox(
+                    width: 80,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.favorite,
+                          color: Colors.redAccent,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${character.hp}",
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );

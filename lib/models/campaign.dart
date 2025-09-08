@@ -6,7 +6,9 @@ class Campaign {
   final String title;
   final String hostId;
   final List<Character> players;
+  final List<Object> sessions;
   final String sessionCode;
+  final Object notes;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,7 +17,9 @@ class Campaign {
     required this.title,
     required this.hostId,
     this.players = const [],
+    this.sessions = const [],
     required this.sessionCode,
+    required this.notes,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -33,7 +37,11 @@ class Campaign {
                   Character.fromJson(playerJson as Map<String, dynamic>))
               .toList() ??
           [],
+      // Handle null or empty list
+      sessions: (json['sessions'] as List<dynamic>?)?.cast<Object>() ?? [],
+      // Handle null or empty list
       sessionCode: json['sessionCode'] as String? ?? 'NO_CODE',
+      notes: json['notes'] ?? {},
       // Provide default
       createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       // Handle null Timestamp
@@ -48,7 +56,9 @@ class Campaign {
       'title': title,
       'hostId': hostId,
       'players': players,
+      'sessions': sessions,
       'sessionCode': sessionCode,
+      'notes': notes,
       'createdAt': Timestamp.fromDate(createdAt),
       // Convert DateTime back to Timestamp for Firestore
       'updatedAt': Timestamp.fromDate(updatedAt),
@@ -58,7 +68,7 @@ class Campaign {
 
   @override
   String toString() {
-    return 'Campaign(id: $id, title: $title, hostId: $hostId, players: $players, sessionCode: $sessionCode, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Campaign(id: $id, title: $title, hostId: $hostId, players: $players, sessions: $sessions, sessionCode: $sessionCode, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   static Campaign empty() {
@@ -67,7 +77,9 @@ class Campaign {
       title: 'Untitled Campaign',
       hostId: 'DEFAULT_HOST_ID',
       players: [],
+      sessions: [],
       sessionCode: 'NO_CODE',
+      notes: {},
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -78,7 +90,9 @@ class Campaign {
         title == 'Untitled Campaign' &&
         hostId == 'DEFAULT_HOST_ID' &&
         players.isEmpty &&
+        sessions.isEmpty &&
         sessionCode == 'NO_CODE' &&
+        notes == {} &&
         createdAt == DateTime.now() &&
         updatedAt == DateTime.now();
   }
