@@ -5,6 +5,7 @@ import 'package:dice_master/features/campaign/views/combat.dart';
 import 'package:dice_master/features/campaign/views/dashboard.dart';
 import 'package:dice_master/features/campaign/views/sessions.dart';
 import 'package:dice_master/models/campaign.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CampaignScreen extends StatelessWidget {
@@ -56,135 +57,145 @@ class CampaignScreen extends StatelessWidget {
           );
         }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(campaign.title),
-            centerTitle: true,
-          ),
-          body: Row(
-            children: [
-              Container(
-                color: Colors.black38,
-                width: 300,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          "assets/images/Logo-removebg-preview.png",
-                          width: 100,
-                          height: 100,
-                        ),
-                        const Text(
-                          "Dice Master",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
+        if (campaign.hostId == FirebaseAuth.instance.currentUser?.uid) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(campaign.title),
+              centerTitle: true,
+            ),
+            body: Row(
+              children: [
+                Container(
+                  color: Colors.black38,
+                  width: 300,
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          ThemedIconButton(
-                            icon: const Icon(
-                              Icons.home,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {
-                              pageController.jumpToPage(0);
-                            },
-                            text: 'Dashboard',
+                          Image.asset(
+                            "assets/images/Logo-removebg-preview.png",
+                            width: 100,
+                            height: 100,
                           ),
-                          const SizedBox(height: 8.0), // Added for spacing
-                          ThemedIconButton(
-                            icon: const Icon(
-                              Icons.group, // Icon for Characters
+                          const Text(
+                            "Dice Master",
+                            style: TextStyle(
                               color: Colors.white,
-                              size: 30,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {
-                              pageController
-                                  .jumpToPage(1); // Index for CharactersView
-                            },
-                            text: 'Characters',
-                          ),
-                          const SizedBox(height: 8.0), // Added for spacing
-                          ThemedIconButton(
-                            icon: const Icon(
-                              Icons.list_alt, // Icon for Sessions
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {
-                              pageController
-                                  .jumpToPage(2); // Index for SessionsView
-                            },
-                            text: 'Sessions',
-                          ),
-                          const SizedBox(height: 8.0), // Added for spacing
-                          ThemedIconButton(
-                            icon: const Icon(
-                              Icons.shield_outlined, // Icon for Combat
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {
-                              pageController
-                                  .jumpToPage(3); // Index for CombatsView
-                            },
-                            text: 'Combat',
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            ThemedIconButton(
+                              icon: const Icon(
+                                Icons.home,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                pageController.jumpToPage(0);
+                              },
+                              text: 'Dashboard',
+                            ),
+                            const SizedBox(height: 8.0), // Added for spacing
+                            ThemedIconButton(
+                              icon: const Icon(
+                                Icons.group, // Icon for Characters
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                pageController
+                                    .jumpToPage(1); // Index for CharactersView
+                              },
+                              text: 'Characters',
+                            ),
+                            const SizedBox(height: 8.0), // Added for spacing
+                            ThemedIconButton(
+                              icon: const Icon(
+                                Icons.list_alt, // Icon for Sessions
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                pageController
+                                    .jumpToPage(2); // Index for SessionsView
+                              },
+                              text: 'Sessions',
+                            ),
+                            const SizedBox(height: 8.0), // Added for spacing
+                            ThemedIconButton(
+                              icon: const Icon(
+                                Icons.shield_outlined, // Icon for Combat
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                pageController
+                                    .jumpToPage(3); // Index for CombatsView
+                              },
+                              text: 'Combat',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: PageView(
-                  controller: pageController,
-                  children: [
-                    const DashboardView(),
-                    CharactersView(
-                      campaignId: campaignId,
-                    ),
-                    const SessionsView(),
-                    const CombatsView()
-                  ],
-                ),
-              )
-            ],
-          ),
-        );
+                Expanded(
+                  child: PageView(
+                    controller: pageController,
+                    children: [
+                      const DashboardView(),
+                      CharactersView(
+                        campaignId: campaignId,
+                      ),
+                      const SessionsView(),
+                      const CombatsView()
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(campaign.title),
+              centerTitle: true,
+            ),
+            body: CharactersView(campaignId: campaignId),
+          );
+        }
       },
     );
   }
