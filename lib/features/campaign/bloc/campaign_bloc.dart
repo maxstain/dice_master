@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dice_master/features/campaign/bloc/campaign_state.dart';
-import 'package:dice_master/models/campaign.dart';
+import 'package:dice_master/models/campaign.dart'; // Ensure Campaign model is imported if used directly
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,23 +15,22 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
   CampaignBloc({FirebaseFirestore? firestore})
       : firestore = firestore ?? FirebaseFirestore.instance,
         super(CampaignInitial()) {
-    // Start with CampaignInitial
     on<TriggerInitialLoad>(_onTriggerInitialLoadHandler);
-    on<CampaignStarted>(
-        _onCampaignStartedHandler); // For user-initiated refresh
+    on<CampaignStarted>(_onCampaignStartedHandler);
     on<CreateCampaignRequested>(_onCreateCampaignRequestedHandler);
-    on<JoinCampaignRequested>(_onJoinCampaignRequestedHandler);
+    on<JoinCampaignRequested>(
+        _onJoinCampaignRequestedHandler); // This is what we are modifying
     on<LeaveCampaignRequested>(_onLeaveCampaignRequestedHandler);
-    // on<CampaignUpdated>(_onCampaignUpdated); // If you have this handler
 
-    add(const TriggerInitialLoad()); // Dispatch the initial load event
+    add(const TriggerInitialLoad());
   }
 
   Future<void> _onTriggerInitialLoadHandler(
       TriggerInitialLoad event, Emitter<CampaignState> emit) async {
+    // ... (existing code for _onTriggerInitialLoadHandler)
+    // No changes needed here for this request
     print(
         "CampaignBloc: _onTriggerInitialLoadHandler triggered for initial data load.");
-    // Only proceed if we are in an initial or failed state to avoid redundant loads on hot reload with BLoC already loaded
     if (state is CampaignInitial ||
         state is CampaignFailure ||
         state is CampaignNotAuthenticated) {
@@ -39,22 +38,21 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     } else {
       print(
           "CampaignBloc: Initial load triggered but state is already ${state.runtimeType}. Campaigns might already be loaded or loading.");
-      // If state is CampaignSuccess, it means campaigns are loaded. If CampaignLoading, it's in progress.
-      // If you want TriggerInitialLoad to ALWAYS reload, then remove this if condition.
-      // For now, this makes initial load idempotent if BLoC is preserved across hot restarts and already loaded.
     }
   }
 
   Future<void> _onCampaignStartedHandler(
-      // This is for user-initiated refresh
-      CampaignStarted event,
-      Emitter<CampaignState> emit) async {
+      CampaignStarted event, Emitter<CampaignState> emit) async {
+    // ... (existing code for _onCampaignStartedHandler)
+    // No changes needed here for this request
     print("CampaignBloc: _onCampaignStartedHandler triggered (user refresh).");
     await _loadCampaigns(emit, isRefresh: true);
   }
 
   Future<void> _loadCampaigns(Emitter<CampaignState> emit,
       {required bool isRefresh}) async {
+    // ... (existing code for _loadCampaigns)
+    // No changes needed here for this request
     print(
         "CampaignBloc: _loadCampaigns called. isRefresh: $isRefresh, currentState: ${state.runtimeType}");
     final currentUser = _firebaseAuth.currentUser;
@@ -65,9 +63,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       return;
     }
 
-    // Only emit CampaignLoading if not already loading, or if it's a forced refresh from a stable state
     if (state is CampaignLoading && !isRefresh) {
-      // Avoid emitting loading if already loading unless it's a refresh
       print(
           "CampaignBloc: Already in CampaignLoading state and not a refresh. Aborting redundant _loadCampaigns call.");
       return;
@@ -113,11 +109,10 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       CreateCampaignRequested event, Emitter<CampaignState> emit) async {
     print(
         "CampaignBloc: _onCreateCampaignRequestedHandler triggered with name: ${event.campaignName}");
-    // emit(CampaignLoading()); // Don't emit CampaignLoading here if UI handles it, or if it makes UI jumpy
-    // The list will refresh via CampaignStarted after creation.
     final currentUser = _firebaseAuth.currentUser;
     if (currentUser == null) {
-      emit(CampaignFailure('User not authenticated to create a campaign.'));
+      emit(const CampaignFailure(
+          'User not authenticated to create a campaign.'));
       print(
           "CampaignBloc: User not authenticated for CreateCampaignRequested.");
       return;
@@ -127,7 +122,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       DocumentReference ref = await firestore.collection('campaigns').add({
         'title': event.campaignName ?? 'New Campaign',
         'hostId': currentUser.uid,
-        'players': [],
+        // 'players': [], // REMOVED: Inconsistent with players subcollection approach
         'sessionCode': FirebaseFirestore.instance
             .collection('campaigns')
             .doc()
@@ -136,16 +131,11 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
             .toUpperCase(),
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-        // 'id': null, // ID will be set in the next step
       });
 
-      await ref
-          .update({'id': ref.id}); // Store the document ID within the document
+      await ref.update({'id': ref.id});
       print("CampaignBloc: Campaign created with ID: ${ref.id}");
-
-      // Instead of CampaignStarted which reloads all, consider optimistically updating or a specific "CampaignAdded" state.
-      // For now, refreshing all campaigns:
-      add(const CampaignStarted()); // This will trigger _loadCampaigns with isRefresh: true
+      add(const CampaignStarted());
     } catch (e, stackTrace) {
       print('CampaignBloc: Failed to create campaign: $e');
       print(
@@ -154,14 +144,16 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     }
   }
 
+  // MODIFIED HANDLER STARTS HERE
   Future<void> _onJoinCampaignRequestedHandler(
       JoinCampaignRequested event, Emitter<CampaignState> emit) async {
     print(
         "CampaignBloc: _onJoinCampaignRequestedHandler triggered for campaign ID: ${event.campaignId}");
-    // emit(CampaignLoading()); // Similar to create, consider UI impact.
+    emit(CampaignLoading());
+
     final currentUser = _firebaseAuth.currentUser;
     if (currentUser == null) {
-      emit(CampaignFailure('User not authenticated to join a campaign.'));
+      emit(const CampaignFailure('User not authenticated to join a campaign.'));
       print("CampaignBloc: User not authenticated for JoinCampaignRequested.");
       return;
     }
@@ -169,9 +161,9 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     try {
       final campaignDocRef =
           firestore.collection('campaigns').doc(event.campaignId);
-      final campaignDoc = await campaignDocRef.get();
+      final campaignSnapshot = await campaignDocRef.get();
 
-      if (!campaignDoc.exists) {
+      if (!campaignSnapshot.exists) {
         emit(
             CampaignFailure('Campaign with ID ${event.campaignId} not found.'));
         print(
@@ -179,39 +171,68 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
         return;
       }
 
-      await campaignDocRef.update({
-        'players': FieldValue.arrayUnion([currentUser.uid])
-      });
+      final campaignData = campaignSnapshot.data() as Map<String, dynamic>;
+      final String? hostId = campaignData['hostId'] as String?;
+
+      // 1. Check if current user is the host
+      if (hostId == currentUser.uid) {
+        print(
+            "CampaignBloc: User is the host. Entering campaign ${event.campaignId}.");
+        emit(CampaignCampaignJoined(event.campaignId));
+        return;
+      }
+
+      // 2. Check if user is already in the 'players' subcollection
+      final playerDocRef =
+          campaignDocRef.collection('players').doc(currentUser.uid);
+      final playerDocSnapshot = await playerDocRef.get();
+
+      if (playerDocSnapshot.exists) {
+        print(
+            "CampaignBloc: User is already a player. Entering campaign ${event.campaignId}.");
+        emit(CampaignCampaignJoined(event.campaignId));
+        return;
+      }
+
+      // 3. User is not the host and not an existing player, so add them.
+      print(
+          "CampaignBloc: User is new to campaign ${event.campaignId}. Adding player.");
+
+      final newCharacterData = {
+        'name': 'New Adventurer', // Default name
+        'role': 'Unknown',
+        'level': 1,
+        'hp': 10,
+        'race': 'Human',
+        'imageUrl': '',
+        'userId': currentUser.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+        // Ensure these fields align with your Character.fromJson factory
+      };
+
+      // CRITICAL: Use .set() to create the document if it doesn't exist.
+      await playerDocRef.set(newCharacterData); // <--- ENSURE THIS IS .set()
 
       print(
-          "CampaignBloc: User ${currentUser.uid} joined campaign ${event.campaignId}");
-      // After joining, refresh the campaign list to show updated player counts etc.
-      add(const CampaignStarted()); // This will trigger _loadCampaigns with isRefresh: true
+          "CampaignBloc: User ${currentUser.uid} added as a new player to campaign ${event.campaignId}.");
+      emit(CampaignCampaignJoined(event.campaignId));
     } catch (e, stackTrace) {
-      print('CampaignBloc: Failed to join campaign: $e');
       print(
-          'CampaignBloc: Stacktrace for campaign joining failure: $stackTrace');
-      emit(CampaignFailure('Failed to join campaign: ${e.toString()}'));
+          'CampaignBloc: Failed to join or enter campaign: $e'); // Your error message comes from here
+      print(
+          'CampaignBloc: Stacktrace for campaign joining/entering failure: $stackTrace');
+      emit(
+          CampaignFailure('Failed to join or enter campaign: ${e.toString()}'));
     }
   }
 
+  // MODIFIED HANDLER ENDS HERE
+
   Future<void> _onLeaveCampaignRequestedHandler(
-      // Basic structure
-      LeaveCampaignRequested event,
-      Emitter<CampaignState> emit) async {
+      LeaveCampaignRequested event, Emitter<CampaignState> emit) async {
+    // ... (existing code for _onLeaveCampaignRequestedHandler)
+    // No changes needed here for this request
     print("CampaignBloc: _onLeaveCampaignRequestedHandler triggered.");
-    // Actual logic to remove player from Firestore campaign document would go here.
-    // Example:
-    // final currentUser = _firebaseAuth.currentUser;
-    // if (currentUser != null && state is CampaignPlayer) { // Assuming state holds current campaign
-    //   final campaignId = (state as CampaignPlayer).campaignId; // Need campaignId to leave
-    //   await firestore.collection('campaigns').doc(campaignId).update({
-    //     'players': FieldValue.arrayRemove([currentUser.uid])
-    //   });
-    // }
-    // After leaving, refresh campaign list or navigate
-    add(const CampaignStarted()); // Refresh list
-    // Or emit a state that causes UI to go back to lobby explicitly
-    // emit(CampaignLobby()); // This might be too abrupt or handled by UI structure
+    add(const CampaignStarted());
   }
 }

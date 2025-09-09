@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dice_master/features/home/bloc/home_state.dart';
-import 'package:dice_master/models/campaign.dart';
+import 'package:dice_master/models/campaign.dart'; // Make sure this is used or remove if not
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,22 +15,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({FirebaseFirestore? firestore})
       : firestore = firestore ?? FirebaseFirestore.instance,
         super(HomeInitial()) {
-    // Start with HomeInitial
     on<TriggerInitialLoad>(_onTriggerInitialLoadHandler);
-    on<HomeStarted>(_onHomeStartedHandler); // For user-initiated refresh
+    on<HomeStarted>(_onHomeStartedHandler);
     on<CreateCampaignRequested>(_onCreateCampaignRequestedHandler);
     on<JoinCampaignRequested>(_onJoinCampaignRequestedHandler);
     on<LeaveCampaignRequested>(_onLeaveCampaignRequestedHandler);
-    // on<CampaignUpdated>(_onCampaignUpdated); // If you have this handler
 
-    add(const TriggerInitialLoad()); // Dispatch the initial load event
+    add(const TriggerInitialLoad());
   }
 
   Future<void> _onTriggerInitialLoadHandler(
       TriggerInitialLoad event, Emitter<HomeState> emit) async {
     print(
         "HomeBloc: _onTriggerInitialLoadHandler triggered for initial data load.");
-    // Only proceed if we are in an initial or failed state to avoid redundant loads on hot reload with BLoC already loaded
     if (state is HomeInitial ||
         state is HomeFailure ||
         state is HomeNotAuthenticated) {
@@ -38,16 +35,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } else {
       print(
           "HomeBloc: Initial load triggered but state is already ${state.runtimeType}. Campaigns might already be loaded or loading.");
-      // If state is HomeSuccess, it means campaigns are loaded. If HomeLoading, it's in progress.
-      // If you want TriggerInitialLoad to ALWAYS reload, then remove this if condition.
-      // For now, this makes initial load idempotent if BLoC is preserved across hot restarts and already loaded.
     }
   }
 
   Future<void> _onHomeStartedHandler(
-      // This is for user-initiated refresh
-      HomeStarted event,
-      Emitter<HomeState> emit) async {
+      HomeStarted event, Emitter<HomeState> emit) async {
     print("HomeBloc: _onHomeStartedHandler triggered (user refresh).");
     await _loadCampaigns(emit, isRefresh: true);
   }
@@ -64,9 +56,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       return;
     }
 
-    // Only emit HomeLoading if not already loading, or if it's a forced refresh from a stable state
     if (state is HomeLoading && !isRefresh) {
-      // Avoid emitting loading if already loading unless it's a refresh
       print(
           "HomeBloc: Already in HomeLoading state and not a refresh. Aborting redundant _loadCampaigns call.");
       return;
@@ -112,11 +102,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       CreateCampaignRequested event, Emitter<HomeState> emit) async {
     print(
         "HomeBloc: _onCreateCampaignRequestedHandler triggered with name: ${event.campaignName}");
-    // emit(HomeLoading()); // Don't emit HomeLoading here if UI handles it, or if it makes UI jumpy
-    // The list will refresh via HomeStarted after creation.
     final currentUser = _firebaseAuth.currentUser;
     if (currentUser == null) {
-      emit(HomeFailure('User not authenticated to create a campaign.'));
+      emit(const HomeFailure('User not authenticated to create a campaign.'));
       print("HomeBloc: User not authenticated for CreateCampaignRequested.");
       return;
     }
@@ -135,16 +123,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Initialize the players subcollection.
-      await ref.collection('players').add({});
-
-      await ref
-          .update({'id': ref.id}); // Store the document ID within the document
+      await ref.update({'id': ref.id});
       print("HomeBloc: Campaign created with ID: ${ref.id}");
-
-      // Instead of HomeStarted which reloads all, consider optimistically updating or a specific "CampaignAdded" state.
-      // For now, refreshing all campaigns:
-      add(const HomeStarted()); // This will trigger _loadCampaigns with isRefresh: true
+      add(const HomeStarted());
     } catch (e, stackTrace) {
       print('HomeBloc: Failed to create campaign: $e');
       print('HomeBloc: Stacktrace for campaign creation failure: $stackTrace');
@@ -156,84 +137,119 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       JoinCampaignRequested event, Emitter<HomeState> emit) async {
     print(
         "HomeBloc: _onJoinCampaignRequestedHandler triggered for campaign ID: ${event.campaignId}");
-    // emit(HomeLoading()); // Similar to create, consider UI impact.
+    emit(HomeLoading());
+    print(
+        "HomeBloc: Emitted HomeLoading in _onJoinCampaignRequestedHandler."); // ADDED
+
     final currentUser = _firebaseAuth.currentUser;
     if (currentUser == null) {
+      print(
+          "HomeBloc: User not authenticated in _onJoinCampaignRequestedHandler. Emitting HomeFailure."); // ADDED
       emit(const HomeFailure('User not authenticated to join a campaign.'));
-      print("HomeBloc: User not authenticated for JoinCampaignRequested.");
       return;
     }
 
     try {
       final campaignDocRef =
           firestore.collection('campaigns').doc(event.campaignId);
-      final campaignDoc = await campaignDocRef.get();
+      final campaignSnapshot = await campaignDocRef.get();
 
-      if (!campaignDoc.exists) {
+      if (!campaignSnapshot.exists) {
+        print(
+            "HomeBloc: Campaign ${event.campaignId} not found. Emitting HomeFailure."); // ADDED
         emit(HomeFailure('Campaign with ID ${event.campaignId} not found.'));
-        print("HomeBloc: Campaign ${event.campaignId} not found for joining.");
         return;
       }
+      print("HomeBloc: Campaign ${event.campaignId} found."); // ADDED
 
-      await campaignDocRef.collection('players').doc(currentUser.uid).update({
-        'name': currentUser.displayName ?? 'Anonymous',
-        'role': 'Adventurer',
-        'level': 1,
-        'hp': 6,
-        'items': FieldValue.arrayUnion([]),
-        'imageUrl': currentUser.photoURL ?? '',
-      });
+      final campaignData = campaignSnapshot.data() as Map<String, dynamic>;
+      final String? hostId = campaignData['hostId'] as String?;
 
+      if (hostId == currentUser.uid) {
+        print(
+            "HomeBloc: User IS THE HOST of ${event.campaignId}. Preparing to emit HomeCampaignJoined."); // ADDED
+        emit(HomeCampaignJoined(event.campaignId));
+        print("HomeBloc: Emitted HomeCampaignJoined for host."); // ADDED
+        return;
+      }
       print(
-          "HomeBloc: User ${currentUser.uid} joined campaign ${event.campaignId}");
-      // After joining, refresh the campaign list to show updated player counts etc.
-      add(const HomeStarted()); // This will trigger _loadCampaigns with isRefresh: true
+          "HomeBloc: User is NOT THE HOST of ${event.campaignId}. Checking if player."); // ADDED
+
+      final playerDocRef =
+          campaignDocRef.collection('players').doc(currentUser.uid);
+      final playerDocSnapshot = await playerDocRef.get();
+
+      if (playerDocSnapshot.exists) {
+        print(
+            "HomeBloc: User IS ALREADY A PLAYER in ${event.campaignId}. Preparing to emit HomeCampaignJoined."); // ADDED
+        emit(HomeCampaignJoined(event.campaignId));
+        print(
+            "HomeBloc: Emitted HomeCampaignJoined for existing player."); // ADDED
+        return;
+      }
+      print(
+          "HomeBloc: User is NOT an existing player in ${event.campaignId}. Adding as new player."); // ADDED
+
+      final newCharacterData = {
+        'name': currentUser.displayName ?? 'New Adventurer',
+        'role': 'Unknown',
+        'level': 1,
+        'hp': 10,
+        'race': 'Human',
+        'imageUrl': currentUser.photoURL ?? '',
+        'userId': currentUser.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      await playerDocRef.set(newCharacterData);
+      print(
+          "HomeBloc: User ${currentUser.uid} ADDED as new player to ${event.campaignId}. Preparing to emit HomeCampaignJoined."); // ADDED
+      emit(HomeCampaignJoined(event.campaignId));
+      print("HomeBloc: Emitted HomeCampaignJoined for new player."); // ADDED
     } catch (e, stackTrace) {
-      print('HomeBloc: Failed to join campaign: $e');
-      print('HomeBloc: Stacktrace for campaign joining failure: $stackTrace');
-      emit(HomeFailure('Failed to join campaign: ${e.toString()}'));
+      print('HomeBloc: ERROR in _onJoinCampaignRequestedHandler: $e');
+      print(
+          'HomeBloc: Stacktrace for _onJoinCampaignRequestedHandler error: $stackTrace');
+      emit(HomeFailure('Failed to join or enter campaign: ${e.toString()}'));
+      print(
+          "HomeBloc: Emitted HomeFailure due to error in _onJoinCampaignRequestedHandler."); // ADDED
     }
   }
 
   Future<void> _onLeaveCampaignRequestedHandler(
-      // Basic structure
-      LeaveCampaignRequested event,
-      Emitter<HomeState> emit) async {
-    print("HomeBloc: _onLeaveCampaignRequestedHandler triggered.");
-    // Actual logic to remove player from Firestore campaign document would go here.
-    // Example:
+      LeaveCampaignRequested event, Emitter<HomeState> emit) async {
+    print(
+        "HomeBloc: _onLeaveCampaignRequestedHandler triggered for campaign ID: ${event.campaignId}.");
+
     final currentUser = _firebaseAuth.currentUser;
-    if (currentUser != null && state is HomePlayer) {
-      // Assuming state holds current campaign
-      try {
-        final campaignDocRef =
-            firestore.collection('campaigns').doc(event.campaignId);
-        final campaignDoc = await campaignDocRef.get();
+    if (currentUser == null) {
+      emit(const HomeFailure('User not authenticated to leave a campaign.'));
+      print("HomeBloc: User not authenticated for LeaveCampaignRequested.");
+      return;
+    }
 
-        if (!campaignDoc.exists) {
-          emit(HomeFailure('Campaign with ID ${event.campaignId} not found.'));
-          print(
-              "HomeBloc: Campaign ${event.campaignId} not found for leaving.");
-          return;
-        }
+    try {
+      final campaignDocRef =
+          firestore.collection('campaigns').doc(event.campaignId);
+      final playerDocRef =
+          campaignDocRef.collection('players').doc(currentUser.uid);
+      final playerDocSnapshot = await playerDocRef.get();
 
-        await campaignDocRef
-            .collection('players')
-            .doc(currentUser.uid)
-            .delete();
-
+      if (!playerDocSnapshot.exists) {
         print(
-            "HomeBloc: User ${currentUser.uid} left campaign ${event.campaignId}");
-      } catch (e, stackTrace) {
-        print('HomeBloc: Failed to leave campaign: $e');
-        print('HomeBloc: Stacktrace for campaign leaving failure: $stackTrace');
-        emit(HomeFailure('Failed to leave campaign: ${e.toString()}'));
+            "HomeBloc: Player ${currentUser.uid} not found in campaign ${event.campaignId} to leave.");
+        add(const HomeStarted());
         return;
       }
+
+      await playerDocRef.delete();
+      print(
+          "HomeBloc: Player ${currentUser.uid} removed from campaign ${event.campaignId}");
+      add(const HomeStarted());
+    } catch (e, stackTrace) {
+      print('HomeBloc: Failed to leave campaign: $e');
+      print('HomeBloc: Stacktrace for campaign leaving failure: $stackTrace');
+      emit(HomeFailure('Failed to leave campaign: ${e.toString()}'));
     }
-    // After leaving, refresh campaign list or navigate
-    add(const HomeStarted()); // Refresh list
-    // Or emit a state that causes UI to go back to lobby explicitly
-    // emit(HomeLobby()); // This might be too abrupt or handled by UI structure
   }
 }

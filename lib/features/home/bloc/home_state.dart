@@ -88,12 +88,12 @@ class HomeCampaignCreated extends HomeState {
 }
 
 class HomeCampaignJoined extends HomeState {
-  final String sessionId;
+  final String campaignId; // Renamed from sessionId
 
-  const HomeCampaignJoined(this.sessionId);
+  const HomeCampaignJoined(this.campaignId);
 
   @override
-  List<Object?> get props => [sessionId];
+  List<Object?> get props => [campaignId];
 }
 
 class HomeCampaignLeft extends HomeState {

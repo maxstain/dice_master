@@ -6,7 +6,7 @@ class Campaign {
   final String title;
   final String hostId;
   final List<Character> players;
-  final List<Object> sessions;
+  final List<Map<String, dynamic>> sessions;
   final String sessionCode;
   final Object notes;
   final DateTime createdAt;
@@ -38,7 +38,10 @@ class Campaign {
               .toList() ??
           [],
       // Handle null or empty list
-      sessions: (json['sessions'] as List<dynamic>?)?.cast<Object>() ?? [],
+      sessions: (json['sessions'] as List<dynamic>?)
+              ?.map((session) => session as Map<String, dynamic>)
+              .toList() ??
+          [],
       // Handle null or empty list
       sessionCode: json['sessionCode'] as String? ?? 'NO_CODE',
       notes: json['notes'] ?? {},

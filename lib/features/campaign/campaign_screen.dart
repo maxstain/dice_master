@@ -28,6 +28,16 @@ class CampaignScreen extends StatelessWidget {
     });
   }
 
+  // 🔥 Players subcollection stream
+  Stream<QuerySnapshot<Map<String, dynamic>>> _playersStream(
+      String campaignId) {
+    return FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(campaignId)
+        .collection('players')
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     int pageIndex = 0;
@@ -59,10 +69,7 @@ class CampaignScreen extends StatelessWidget {
 
         if (campaign.hostId == FirebaseAuth.instance.currentUser?.uid) {
           return Scaffold(
-            appBar: AppBar(
-              title: Text(campaign.title),
-              centerTitle: true,
-            ),
+            appBar: AppBar(),
             body: Row(
               children: [
                 Container(
@@ -175,9 +182,12 @@ class CampaignScreen extends StatelessWidget {
                   child: PageView(
                     controller: pageController,
                     children: [
-                      const DashboardView(),
+                      DashboardView(
+                        campaign: campaign,
+                        players: _playersStream(campaignId),
+                      ),
                       CharactersView(
-                        campaignId: campaignId,
+                        players: _playersStream(campaignId),
                       ),
                       const SessionsView(),
                       const CombatsView()
@@ -193,7 +203,7 @@ class CampaignScreen extends StatelessWidget {
               title: Text(campaign.title),
               centerTitle: true,
             ),
-            body: CharactersView(campaignId: campaignId),
+            body: CharactersView(players: _playersStream(campaignId)),
           );
         }
       },
