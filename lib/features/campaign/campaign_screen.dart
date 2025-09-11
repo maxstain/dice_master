@@ -8,10 +8,30 @@ import 'package:dice_master/models/campaign.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class CampaignScreen extends StatelessWidget {
+class CampaignScreen extends StatefulWidget {
   final String campaignId;
 
   const CampaignScreen({super.key, required this.campaignId});
+
+  @override
+  State<CampaignScreen> createState() => _CampaignScreenState();
+}
+
+class _CampaignScreenState extends State<CampaignScreen> {
+  late final PageController _pageController;
+  int _pageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _pageIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   // 🔥 Campaign document stream
   Stream<Campaign> _campaignStream(String campaignId) {
@@ -40,12 +60,8 @@ class CampaignScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int pageIndex = 0;
-
-    final pageController = PageController(initialPage: pageIndex);
-
     return StreamBuilder<Campaign>(
-      stream: _campaignStream(campaignId),
+      stream: _campaignStream(widget.campaignId),
       builder: (context, campaignSnapshot) {
         if (campaignSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -111,7 +127,7 @@ class CampaignScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                pageController.jumpToPage(0);
+                                _pageController.jumpToPage(0);
                               },
                               text: 'Dashboard',
                             ),
@@ -129,7 +145,7 @@ class CampaignScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                pageController
+                                _pageController
                                     .jumpToPage(1); // Index for CharactersView
                               },
                               text: 'Characters',
@@ -148,7 +164,7 @@ class CampaignScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                pageController
+                                _pageController
                                     .jumpToPage(2); // Index for SessionsView
                               },
                               text: 'Sessions',
@@ -167,7 +183,7 @@ class CampaignScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                pageController
+                                _pageController
                                     .jumpToPage(3); // Index for CombatsView
                               },
                               text: 'Combat',
@@ -180,14 +196,14 @@ class CampaignScreen extends StatelessWidget {
                 ),
                 Expanded(
                   child: PageView(
-                    controller: pageController,
+                    controller: _pageController,
                     children: [
                       DashboardView(
                         campaign: campaign,
-                        players: _playersStream(campaignId),
+                        players: _playersStream(widget.campaignId),
                       ),
                       CharactersView(
-                        players: _playersStream(campaignId),
+                        players: _playersStream(widget.campaignId),
                       ),
                       const SessionsView(),
                       const CombatsView()
@@ -203,7 +219,7 @@ class CampaignScreen extends StatelessWidget {
               title: Text(campaign.title),
               centerTitle: true,
             ),
-            body: CharactersView(players: _playersStream(campaignId)),
+            body: CharactersView(players: _playersStream(widget.campaignId)),
           );
         }
       },

@@ -16,6 +16,7 @@ class HomeLobbyScreen extends StatefulWidget {
 }
 
 class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
+  bool _isNavigating = false;
   final _campaignIdController = TextEditingController();
 
   @override
@@ -132,11 +133,23 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
     return BlocListener<HomeBloc, HomeState>(
         listener: (context, state) {
           print(
-              "HomeLobbyScreen BlocListener: Received state: ${state.runtimeType}"); // ADDED
+              "HomeLobbyScreen BlocListener: Received state: ${state.runtimeType}");
+
+          if (state is HomeLoading) {
+            print(
+                "HomeLobbyScreen BlocListener: Received HomeLoading. Awaiting campaign join result...");
+            return;
+          }
 
           if (state is HomeCampaignJoined) {
+            if (_isNavigating) {
+              print(
+                  "HomeLobbyScreen BlocListener: Already navigating. Ignoring duplicate HomeCampaignJoined.");
+              return;
+            }
+            _isNavigating = true;
             print(
-                "HomeLobbyScreen BlocListener: State is HomeCampaignJoined with ID: ${state.campaignId}. Attempting navigation."); // ADDED
+                "HomeLobbyScreen BlocListener: State is HomeCampaignJoined with ID: ${state.campaignId}. Attempting navigation.");
             Navigator.of(context)
                 .push(
               MaterialPageRoute(
@@ -146,14 +159,17 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
             )
                 .then((_) {
               print(
-                  "HomeLobbyScreen BlocListener: Returned from CampaignScreen (after HomeCampaignJoined). Dispatching HomeStarted."); // MODIFIED
-              context.read<HomeBloc>().add(const HomeStarted());
+                  "HomeLobbyScreen BlocListener: Returned from CampaignScreen (after HomeCampaignJoined). Dispatching HomeStarted.");
+              if (mounted) {
+                context.read<HomeBloc>().add(const HomeStarted());
+              }
+              _isNavigating = false;
             });
             print(
-                "HomeLobbyScreen BlocListener: Navigator.push initiated for HomeCampaignJoined."); // ADDED
+                "HomeLobbyScreen BlocListener: Navigator.push initiated for HomeCampaignJoined.");
           } else if (state is HomeFailure) {
             print(
-                "HomeLobbyScreen BlocListener: State is HomeFailure with message: ${state.message}. Showing SnackBar."); // ADDED
+                "HomeLobbyScreen BlocListener: State is HomeFailure with message: ${state.message}. Showing SnackBar.");
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Error: ${state.message}'),
@@ -161,8 +177,9 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
               ),
             );
           } else {
+            // Ignore other intermediate states to reduce noisy logs
             print(
-                "HomeLobbyScreen BlocListener: Received unhandled state: ${state.runtimeType}"); // ADDED
+                "HomeLobbyScreen BlocListener: Ignoring state: ${state.runtimeType}");
           }
         },
         child: Scaffold(

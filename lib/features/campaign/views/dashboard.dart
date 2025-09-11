@@ -95,26 +95,26 @@ class _DashboardViewState extends State<DashboardView> {
                 ],
               ),
               const SizedBox(height: 16),
-              StreamBuilder(
-                stream: widget.players,
-                builder: (context, playersSnapshot) {
-                  if (playersSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+              Expanded(
+                child: StreamBuilder(
+                  stream: widget.players,
+                  builder: (context, playersSnapshot) {
+                    if (playersSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  if (playersSnapshot.hasError) {
-                    return const Center(child: Text("Error loading players"));
-                  }
+                    if (playersSnapshot.hasError) {
+                      return const Center(child: Text("Error loading players"));
+                    }
 
-                  final playersDocs = playersSnapshot.data?.docs ?? [];
+                    final playersDocs = playersSnapshot.data?.docs ?? [];
 
-                  if (playersDocs.isEmpty) {
-                    return const Center(child: Text("No players yet"));
-                  }
+                    if (playersDocs.isEmpty) {
+                      return const Center(child: Text("No players yet"));
+                    }
 
-                  return Expanded(
-                    child: ListView.builder(
+                    return ListView.builder(
                       itemCount: playersDocs.length,
                       itemBuilder: (context, index) {
                         final playerData = playersDocs[index].data();
@@ -150,9 +150,9 @@ class _DashboardViewState extends State<DashboardView> {
                           ],
                         );
                       },
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           );

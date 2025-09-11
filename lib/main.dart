@@ -11,6 +11,8 @@ import 'core/theme/themes.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'firebase_options.dart';
 
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -39,6 +41,7 @@ class DiceMasterApp extends StatelessWidget {
           return MaterialApp(
             title: 'Dice Master',
             debugShowCheckedModeBanner: false,
+            navigatorKey: appNavigatorKey,
             themeMode: themeState.mode,
             theme: DiceThemes.light(),
             darkTheme: DiceThemes.dark(),
@@ -48,7 +51,7 @@ class DiceMasterApp extends StatelessWidget {
                 listener: (context, state) {
                   if (state != null &&
                       state.runtimeType.toString() == 'AuthUnauthenticated') {
-                    Navigator.of(context).pushAndRemoveUntil(
+                    appNavigatorKey.currentState?.pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const SplashScreen()),
                       (route) => false,
                     );

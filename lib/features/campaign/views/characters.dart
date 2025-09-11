@@ -32,18 +32,16 @@ class _CharactersViewState extends State<CharactersView> {
             return const Center(child: Text("No players yet"));
           }
 
-          return Expanded(
-            child: ListView.builder(
-              itemCount: playersDocs.length,
-              itemBuilder: (context, index) {
-                final playerData = playersDocs[index].data();
-                final Character character = Character.fromJson(playerData);
+          return ListView.builder(
+            itemCount: playersDocs.length,
+            itemBuilder: (context, index) {
+              final playerData = playersDocs[index].data();
+              final Character character = Character.fromJson(playerData);
 
-                return CharacterCard(
-                  character: character,
-                );
-              },
-            ),
+              return CharacterCard(
+                character: character,
+              );
+            },
           );
         });
   }

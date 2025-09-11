@@ -75,6 +75,7 @@ class Campaign {
   }
 
   static Campaign empty() {
+    // Use sentinel values to represent an empty/non-existent campaign
     return Campaign(
       id: 'DEFAULT_ID',
       title: 'Untitled Campaign',
@@ -83,20 +84,13 @@ class Campaign {
       sessions: [],
       sessionCode: 'NO_CODE',
       notes: {},
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 
   bool isEmpty() {
-    return id == 'DEFAULT_ID' &&
-        title == 'Untitled Campaign' &&
-        hostId == 'DEFAULT_HOST_ID' &&
-        players.isEmpty &&
-        sessions.isEmpty &&
-        sessionCode == 'NO_CODE' &&
-        notes == {} &&
-        createdAt == DateTime.now() &&
-        updatedAt == DateTime.now();
+    // Checking only the sentinel id is sufficient and reliable
+    return id == 'DEFAULT_ID';
   }
 }
