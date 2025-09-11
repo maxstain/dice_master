@@ -19,7 +19,7 @@ class CampaignScreen extends StatefulWidget {
 
 class _CampaignScreenState extends State<CampaignScreen> {
   late final PageController _pageController;
-  int _pageIndex = 0;
+  final int _pageIndex = 0;
 
   @override
   void initState() {
