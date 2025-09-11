@@ -33,12 +33,12 @@ class CampaignUpdated extends HomeEvent {
 }
 
 class LeaveCampaignRequested extends HomeEvent {
-  const LeaveCampaignRequested({required String campaignId});
+  final String campaignId;
+
+  const LeaveCampaignRequested({required this.campaignId});
 
   @override
-  List<Object?> get props => [];
-
-  String? get campaignId => null;
+  List<Object?> get props => [campaignId];
 }
 
 class HomeStarted extends HomeEvent {

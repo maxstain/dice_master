@@ -31,8 +31,6 @@ class DiceMasterApp extends StatelessWidget {
         BlocProvider(
           // Provide SplashBloc here
           create: (context) => SplashBloc(),
-          child:
-              const SplashScreen(), // Now SplashScreen can access it in initState
         ),
         BlocProvider(create: (_) => AuthBloc()),
       ],
@@ -46,7 +44,18 @@ class DiceMasterApp extends StatelessWidget {
             darkTheme: DiceThemes.dark(),
             home: const SplashScreen(),
             builder: (context, child) {
-              return ConnectivitySnackbarWrapper(child: child!);
+              return BlocListener<AuthBloc, Object?>(
+                listener: (context, state) {
+                  if (state != null &&
+                      state.runtimeType.toString() == 'AuthUnauthenticated') {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const SplashScreen()),
+                      (route) => false,
+                    );
+                  }
+                },
+                child: ConnectivitySnackbarWrapper(child: child!),
+              );
             },
           );
         },

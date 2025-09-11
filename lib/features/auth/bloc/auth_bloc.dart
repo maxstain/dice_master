@@ -107,7 +107,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             (userCredential) => userCredential,
           );
       // Set display name after user creation
-      await user.user?.updateProfile(displayName: event.username);
+      await user.user?.updateDisplayName(event.username);
       await _firestore.collection('users').doc(user.user!.uid).set({
         'username': event.username,
         'email': event.email,
@@ -128,7 +128,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading()); // Ensures loading state is emitted
     try {
       await _firebaseAuth.signOut();
-      // Auth state will be updated by _onAuthUserChanged via the stream
+      // Emit unauthenticated immediately as a fallback; stream will also update
+      emit(AuthUnauthenticated());
     } catch (e) {
       emit(AuthFailure(e.toString()));
     }
