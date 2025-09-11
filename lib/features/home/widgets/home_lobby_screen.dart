@@ -205,12 +205,6 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                 tooltip: "Logout",
                 onPressed: () {
                   context.read<AuthBloc>().add(SignOutRequested());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Logging out...'),
-                      backgroundColor: Colors.grey,
-                    ),
-                  );
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
               ),
