@@ -20,22 +20,103 @@ class HomeLobbyScreen extends StatefulWidget {
 }
 
 class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
+  final Map<String, String> _usernameCache = {};
+
   Future<void> _refreshCampaigns(BuildContext context) async {
     context.read<HomeBloc>().add(const HomeStarted());
+  }
+
+  Future<String> _getHostName(String uid) async {
+    if (_usernameCache.containsKey(uid)) {
+      return _usernameCache[uid]!;
+    }
+    try {
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        final username = data['username'] ?? uid;
+        _usernameCache[uid] = username;
+        return username;
+      }
+    } catch (e) {
+      debugPrint("Failed to fetch username for $uid: $e");
+    }
+    return uid;
+  }
+
+  void _showCreateCampaignDialog(BuildContext context) {
+    final titleController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Create Campaign"),
+        content: TextField(
+          controller: titleController,
+          decoration: const InputDecoration(hintText: "Enter campaign title"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final title = titleController.text.trim();
+              if (title.isNotEmpty) {
+                context.read<HomeBloc>().add(CreateCampaignRequested(title));
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text("Create"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showJoinCampaignDialog(BuildContext context) {
+    final codeController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Join Campaign"),
+        content: TextField(
+          controller: codeController,
+          decoration: const InputDecoration(hintText: "Enter session code"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final code = codeController.text.trim();
+              if (code.isNotEmpty) {
+                context.read<HomeBloc>().add(JoinCampaignRequested(code));
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text("Join"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
-        // While refreshing/loading
         if (state is HomeLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // Loaded state
         if (state is HomeLoaded) {
           final campaigns = state.campaigns;
 
@@ -66,23 +147,14 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                         final c = campaigns[index];
                         return ListTile(
                           title: Text(c.title),
-                          subtitle: FutureBuilder<DocumentSnapshot>(
-                            future: FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(c.hostId)
-                                .get(),
+                          subtitle: FutureBuilder<String>(
+                            future: _getHostName(c.hostId),
                             builder: (ctx, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Text("Loading host...");
                               }
-                              if (!snapshot.hasData || !snapshot.data!.exists) {
-                                return Text("Host: ${c.hostId}");
-                              }
-                              final data =
-                                  snapshot.data!.data() as Map<String, dynamic>;
-                              final hostName = data['username'] ?? c.hostId;
-                              return Text("Host: $hostName");
+                              return Text("Host: ${snapshot.data ?? c.hostId}");
                             },
                           ),
                           trailing: IconButton(
@@ -110,18 +182,14 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
               children: [
                 FloatingActionButton.extended(
                   heroTag: "createCampaign",
-                  onPressed: () {
-                    // TODO: implement create campaign dialog
-                  },
+                  onPressed: () => _showCreateCampaignDialog(context),
                   label: const Text('Create'),
                   icon: const Icon(Icons.add),
                 ),
                 const SizedBox(height: 12),
                 FloatingActionButton.extended(
                   heroTag: "joinCampaign",
-                  onPressed: () {
-                    // TODO: implement join campaign dialog
-                  },
+                  onPressed: () => _showJoinCampaignDialog(context),
                   label: const Text('Join'),
                   icon: const Icon(Icons.group_add),
                 ),
@@ -130,7 +198,6 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
           );
         }
 
-        // Fallback for any other state
         return const Scaffold(
           body: Center(child: Text("No campaigns available")),
         );
