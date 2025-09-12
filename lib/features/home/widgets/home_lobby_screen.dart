@@ -27,9 +27,8 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
   }
 
   Future<String> _getHostName(String uid) async {
-    if (_usernameCache.containsKey(uid)) {
-      return _usernameCache[uid]!;
-    }
+    if (_usernameCache.containsKey(uid)) return _usernameCache[uid]!;
+
     try {
       final doc =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -42,6 +41,7 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
     } catch (e) {
       debugPrint("Failed to fetch username for $uid: $e");
     }
+
     return uid;
   }
 
@@ -64,10 +64,18 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
           ElevatedButton(
             onPressed: () {
               final title = titleController.text.trim();
-              if (title.isNotEmpty) {
-                context.read<HomeBloc>().add(CreateCampaignRequested(title));
-                Navigator.pop(ctx);
+              if (title.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("Campaign title cannot be empty")),
+                );
+                return;
               }
+              context.read<HomeBloc>().add(CreateCampaignRequested(title));
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Creating campaign \"$title\"...")),
+              );
             },
             child: const Text("Create"),
           ),
@@ -95,10 +103,17 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
           ElevatedButton(
             onPressed: () {
               final code = codeController.text.trim();
-              if (code.isNotEmpty) {
-                context.read<HomeBloc>().add(JoinCampaignRequested(code));
-                Navigator.pop(ctx);
+              if (code.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Session code cannot be empty")),
+                );
+                return;
               }
+              context.read<HomeBloc>().add(JoinCampaignRequested(code));
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Joining campaign with code $code...")),
+              );
             },
             child: const Text("Join"),
           ),
@@ -109,7 +124,14 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state is HomeFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error: ${state.message}")),
+          );
+        }
+      },
       builder: (context, state) {
         if (state is HomeLoading) {
           return const Scaffold(
@@ -163,6 +185,12 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                               context
                                   .read<HomeBloc>()
                                   .add(LeaveCampaignRequested(c.id));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text("Leaving campaign ${c.title}..."),
+                                ),
+                              );
                             },
                           ),
                           onTap: () {

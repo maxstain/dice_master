@@ -1,1 +1,25 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"dice-master-36257","appId":"1:767939049500:android:ec39c725ac0ea95fe0c7d9","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"dice-master-36257","configurations":{"android":"1:767939049500:android:ec39c725ac0ea95fe0c7d9","ios":"1:767939049500:ios:7ef7c4302b872f12e0c7d9","macos":"1:767939049500:ios:7ef7c4302b872f12e0c7d9","web":"1:767939049500:web:5fa8919de437d418e0c7d9","windows":"1:767939049500:web:9ed85f972f54771de0c7d9"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "dice-master-36257",
+          "appId": "1:767939049500:android:ec39c725ac0ea95fe0c7d9",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "dice-master-36257",
+          "configurations": {
+            "android": "1:767939049500:android:ec39c725ac0ea95fe0c7d9",
+            "ios": "1:767939049500:ios:7ef7c4302b872f12e0c7d9",
+            "macos": "1:767939049500:ios:7ef7c4302b872f12e0c7d9",
+            "web": "1:767939049500:web:5fa8919de437d418e0c7d9",
+            "windows": "1:767939049500:web:9ed85f972f54771de0c7d9"
+          }
+        }
+      }
+    }
+  }
+}
