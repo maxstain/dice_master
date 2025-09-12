@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dice_master/features/campaign/components/character_card.dart';
+import 'package:dice_master/features/campaign/widgets/character_card.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 

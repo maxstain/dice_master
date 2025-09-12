@@ -1,36 +1,32 @@
-class User {
+class AppUser {
   final String id;
   final String name;
   final String email;
-  final String password;
   final String? profilePictureUrl;
 
-  User({
+  AppUser({
     required this.id,
     required this.name,
     required this.email,
-    required this.password,
     this.profilePictureUrl,
   });
 
-  // Factory constructor to create a User from a map
-  factory User.fromMap(Map<String, dynamic> data) {
-    return User(
+  // Factory constructor to create a AppUser from a map
+  factory AppUser.fromMap(Map<String, dynamic> data) {
+    return AppUser(
       id: data['id'] as String,
       name: data['name'] as String,
       email: data['email'] as String,
-      password: data['password'] as String,
       profilePictureUrl: data['profilePictureUrl'] as String?,
     );
   }
 
-  // Method to convert User to a map
+  // Method to convert AppUser to a map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'email': email,
-      'password': password,
       'profilePictureUrl': profilePictureUrl,
     };
   }

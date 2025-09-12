@@ -1,9 +1,10 @@
-import 'package:dice_master/features/home/bloc/home_bloc.dart';
-import 'package:dice_master/features/home/bloc/home_event.dart';
-import 'package:dice_master/features/home/bloc/home_state.dart';
-import 'package:dice_master/features/home/widgets/home_lobby_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'bloc/home_bloc.dart';
+import 'bloc/home_event.dart';
+import 'bloc/home_state.dart';
+import 'widgets/home_lobby_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,27 +12,33 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeBloc(),
-      child: BlocListener<HomeBloc, HomeState>(
-        listener: (context, state) {},
-        child: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            if (state is HomeLoading) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            } else if (state is HomeNotAuthenticated) {
-              // You might want to navigate to an AuthScreen here
-              return const Scaffold(
-                body: Center(child: Text('Not Authenticated. Please log in.')),
-              );
-            }
-            // For HomeLobby, HomeDungeonMaster, HomePlayer, or any other state
-            // that should show the lobby when no other screen is pushed.
-            // The actual DM/Player screens are pushed by the listener.
-            return const HomeLobbyScreen();
-          },
-        ),
+      create: (_) => HomeBloc()..add(const TriggerInitialLoad()),
+      child: BlocConsumer<HomeBloc, HomeState>(
+        listener: (context, state) {
+          if (state is HomeFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is HomeLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          } else if (state is HomeNotAuthenticated) {
+            return const Scaffold(
+              body: Center(child: Text('Not Authenticated. Please sign in.')),
+            );
+          } else if (state is HomeLoaded) {
+            // Campaigns loaded → show lobby
+            return HomeLobbyScreen(campaigns: state.campaigns);
+          }
+          // Default fallback
+          return const Scaffold(
+            body: Center(child: Text('Welcome to Dice Master')),
+          );
+        },
       ),
     );
   }

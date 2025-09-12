@@ -65,14 +65,16 @@ class _SignInScreenState extends State<SignInScreen>
               _animated(const HomeScreen()),
               (route) => false,
             );
-          } else if (state is AuthFailure) {
-            // Show error message if unauthenticated
-            // FIXME: This condition is duplicated below. The first one might be intended for a different state.
+          } else if (state is AuthUnauthenticated) {
+            // Show generic message if explicitly unauthenticated
             ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please sign in to continue')));
+              const SnackBar(content: Text('Please sign in to continue')),
+            );
           } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            // Show actual failure message (e.g., wrong password)
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
           }
         },
         builder: (context, state) {

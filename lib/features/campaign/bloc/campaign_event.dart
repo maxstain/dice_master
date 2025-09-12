@@ -1,4 +1,7 @@
+import 'package:dice_master/models/character.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../../models/campaign.dart';
 
 abstract class CampaignEvent extends Equatable {
   const CampaignEvent();
@@ -7,58 +10,64 @@ abstract class CampaignEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class CreateCampaignRequested extends CampaignEvent {
-  final String? campaignName;
-
-  const CreateCampaignRequested({this.campaignName});
-
-  @override
-  List<Object?> get props => [campaignName];
-}
-
-class JoinCampaignRequested extends CampaignEvent {
+class CampaignStarted extends CampaignEvent {
   final String campaignId;
 
-  const JoinCampaignRequested(this.campaignId);
+  const CampaignStarted(this.campaignId);
 
   @override
   List<Object?> get props => [campaignId];
 }
 
 class CampaignUpdated extends CampaignEvent {
-  const CampaignUpdated();
+  final Campaign campaign;
+
+  const CampaignUpdated(this.campaign);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [campaign];
 }
 
-class LeaveCampaignRequested extends CampaignEvent {
-  const LeaveCampaignRequested();
+/// DM adds a new session
+class AddSessionRequested extends CampaignEvent {
+  final String campaignId;
+  final Map<String, dynamic> session;
+
+  const AddSessionRequested(this.campaignId, this.session);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [campaignId, session];
 }
 
-class CampaignStarted extends CampaignEvent {
-  // This is for user-initiated refresh
-  const CampaignStarted();
+/// DM updates notes
+class UpdateNotesRequested extends CampaignEvent {
+  final String campaignId;
+  final Map<String, dynamic> notes;
+
+  const UpdateNotesRequested(this.campaignId, this.notes);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [campaignId, notes];
 }
 
-class TriggerInitialLoad extends CampaignEvent {
-  // New event for initial load
-  const TriggerInitialLoad();
+class CampaignDataChanged extends CampaignEvent {
+  final Campaign? campaign;
+  final List<Character> players;
+
+  const CampaignDataChanged(this.campaign, this.players);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [campaign, players];
 }
 
-// CampaignLoaded event was previously discussed. If it was intended as a state, it should be in campaign_state.dart.
-// If it was an event, its purpose needs to be clear. For now, assuming CampaignStarted and TriggerInitialLoad cover needs.
-// class CampaignLoaded extends CampaignEvent {
-//   const CampaignLoaded();
-//   @override
-//   List<Object?> get props => [];
-// }
+/// Player joins a session
+class JoinSessionRequested extends CampaignEvent {
+  final String campaignId;
+  final String sessionId;
+  final String userId;
+
+  const JoinSessionRequested(this.campaignId, this.sessionId, this.userId);
+
+  @override
+  List<Object?> get props => [campaignId, sessionId, userId];
+}

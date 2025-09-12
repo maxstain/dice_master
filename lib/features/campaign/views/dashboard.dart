@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dice_master/features/campaign/components/session_card.dart';
+import 'package:dice_master/features/campaign/widgets/session_card.dart';
 import 'package:dice_master/models/campaign.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:dice_master/models/session.dart';

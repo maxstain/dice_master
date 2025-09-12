@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class HomeEvent extends Equatable {
   const HomeEvent();
@@ -7,69 +8,52 @@ abstract class HomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+/// Trigger initial campaign load when app starts or user logs in
+class TriggerInitialLoad extends HomeEvent {
+  const TriggerInitialLoad();
+}
+
+/// Manual refresh of campaign list
+class HomeStarted extends HomeEvent {
+  const HomeStarted();
+}
+
+/// Fired when Firebase auth state changes
+class HomeUserChanged extends HomeEvent {
+  final User? user;
+
+  const HomeUserChanged(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+/// Create a new campaign
 class CreateCampaignRequested extends HomeEvent {
-  final String? campaignName;
+  final String title;
 
-  const CreateCampaignRequested({this.campaignName});
+  const CreateCampaignRequested(this.title);
 
   @override
-  List<Object?> get props => [campaignName];
+  List<Object?> get props => [title];
 }
 
+/// Join an existing campaign by code
 class JoinCampaignRequested extends HomeEvent {
-  final String campaignId;
+  final String sessionCode;
 
-  const JoinCampaignRequested(this.campaignId);
-
-  @override
-  List<Object?> get props => [campaignId];
-}
-
-class EnterCampaignRequested extends HomeEvent {
-  final String campaignId;
-
-  const EnterCampaignRequested(this.campaignId);
+  const JoinCampaignRequested(this.sessionCode);
 
   @override
-  List<Object?> get props => [campaignId];
+  List<Object?> get props => [sessionCode];
 }
 
-class CampaignUpdated extends HomeEvent {
-  const CampaignUpdated();
-
-  @override
-  List<Object?> get props => [];
-}
-
+/// Leave a campaign
 class LeaveCampaignRequested extends HomeEvent {
   final String campaignId;
 
-  const LeaveCampaignRequested({required this.campaignId});
+  const LeaveCampaignRequested(this.campaignId);
 
   @override
   List<Object?> get props => [campaignId];
 }
-
-class HomeStarted extends HomeEvent {
-  // This is for user-initiated refresh
-  const HomeStarted();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class TriggerInitialLoad extends HomeEvent {
-  // New event for initial load
-  const TriggerInitialLoad();
-
-  @override
-  List<Object?> get props => [];
-}
-
-// HomeLoaded event was previously discussed. If it was intended as a state, it should be in campaign_state.dart.
-// If it was an event, its purpose needs to be clear. For now, assuming HomeStarted and TriggerInitialLoad cover needs.
-// class HomeLoaded extends HomeEvent {
-//   const HomeLoaded();
-//   @override
-//   List<Object?> get props => [];
-// }

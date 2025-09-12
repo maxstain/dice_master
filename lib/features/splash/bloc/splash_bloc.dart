@@ -13,13 +13,8 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
 
   Future<void> _onStarted(
       SplashStarted event, Emitter<SplashState> emit) async {
-    // Simulate startup work & auth check
     await Future.delayed(const Duration(milliseconds: 3000));
-    final isAuthenticated = FirebaseAuth.instance.currentUser != null;
-    if (isAuthenticated) {
-      emit(SplashNavigateToHome());
-    } else {
-      emit(SplashNavigateToSignIn());
-    }
+    final user = FirebaseAuth.instance.currentUser;
+    emit(user != null ? SplashNavigateToHome() : SplashNavigateToSignIn());
   }
 }
