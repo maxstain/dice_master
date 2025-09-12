@@ -8,6 +8,8 @@ abstract class HomeState extends Equatable {
   List<Object?> get props => [];
 
   get campaigns => List<Campaign>.empty;
+
+  get campaignId => null;
 }
 
 class HomeLoading extends HomeState {}
@@ -91,6 +93,15 @@ class HomeCampaignJoined extends HomeState {
   final String campaignId; // Renamed from sessionId
 
   const HomeCampaignJoined(this.campaignId);
+
+  @override
+  List<Object?> get props => [campaignId];
+}
+
+class HomeCampaignEntered extends HomeState {
+  final String campaignId; // Renamed from sessionId
+
+  const HomeCampaignEntered(this.campaignId);
 
   @override
   List<Object?> get props => [campaignId];

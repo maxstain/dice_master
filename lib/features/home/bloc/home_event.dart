@@ -25,6 +25,15 @@ class JoinCampaignRequested extends HomeEvent {
   List<Object?> get props => [campaignId];
 }
 
+class EnterCampaignRequested extends HomeEvent {
+  final String campaignId;
+
+  const EnterCampaignRequested(this.campaignId);
+
+  @override
+  List<Object?> get props => [campaignId];
+}
+
 class CampaignUpdated extends HomeEvent {
   const CampaignUpdated();
 

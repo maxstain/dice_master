@@ -110,18 +110,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
 
     try {
-      DocumentReference ref = await firestore.collection('campaigns').add({
-        'title': event.campaignName ?? 'New Campaign',
-        'hostId': currentUser.uid,
-        'sessionCode': FirebaseFirestore.instance
-            .collection('campaigns')
-            .doc()
-            .id
-            .substring(0, 6)
-            .toUpperCase(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      DocumentReference ref =
+          await firestore.collection('campaigns').add(Campaign.newCampaign(
+                event.campaignName ?? 'New Campaign',
+                currentUser.uid,
+                [],
+                FirebaseFirestore.instance
+                    .collection('campaigns')
+                    .doc()
+                    .id
+                    .substring(0, 6)
+                    .toUpperCase(),
+              ));
 
       await ref.update({'id': ref.id});
       print("HomeBloc: Campaign created with ID: ${ref.id}");
@@ -167,9 +167,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       if (hostId == currentUser.uid) {
         print(
-            "HomeBloc: User IS THE HOST of ${event.campaignId}. Preparing to emit HomeCampaignJoined."); // ADDED
-        emit(HomeCampaignJoined(event.campaignId));
-        print("HomeBloc: Emitted HomeCampaignJoined for host."); // ADDED
+            "HomeBloc: User IS THE HOST of ${event.campaignId}. Preparing to emit HomeCampaignEntered."); // ADDED
+        emit(HomeCampaignEntered(event.campaignId));
+        print("HomeBloc: Emitted HomeCampaignEntered for host."); // ADDED
         return;
       }
       print(
@@ -181,10 +181,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       if (playerDocSnapshot.exists) {
         print(
-            "HomeBloc: User IS ALREADY A PLAYER in ${event.campaignId}. Preparing to emit HomeCampaignJoined."); // ADDED
-        emit(HomeCampaignJoined(event.campaignId));
+            "HomeBloc: User IS ALREADY A PLAYER in ${event.campaignId}. Preparing to emit HomeCampaignEntered."); // ADDED
+        emit(HomeCampaignEntered(event.campaignId));
         print(
-            "HomeBloc: Emitted HomeCampaignJoined for existing player."); // ADDED
+            "HomeBloc: Emitted HomeCampaignEntered for existing player."); // ADDED
         return;
       }
       print(

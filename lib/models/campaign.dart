@@ -93,4 +93,16 @@ class Campaign {
     // Checking only the sentinel id is sufficient and reliable
     return id == 'DEFAULT_ID';
   }
+
+  static Map<String, dynamic> newCampaign(String title, String hostId,
+      List<Map<String, dynamic>> sessions, String sessionCode) {
+    return {
+      'title': title,
+      'hostId': hostId,
+      'sessions': sessions,
+      'sessionCode': sessionCode,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
 }

@@ -60,10 +60,13 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                       .add(CreateCampaignRequested(campaignName: campaignName));
                   Navigator.of(dialogContext).pop();
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Campaign name cannot be empty.")),
-                  );
+                  // Guard with mounted check
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Campaign name cannot be empty.")),
+                    );
+                  }
                 }
               },
             ),
@@ -114,11 +117,14 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
                   Navigator.of(dialogContext)
                       .pop(); // Close dialog after dispatching
                 } else {
-                  ScaffoldMessenger.of(outerContext).showSnackBar(
-                    // Use outerContext for ScaffoldMessenger
-                    const SnackBar(
-                        content: Text("Campaign ID cannot be empty.")),
-                  );
+                  // Guard with mounted check
+                  if (mounted) {
+                    ScaffoldMessenger.of(outerContext).showSnackBar(
+                      // Use outerContext for ScaffoldMessenger
+                      const SnackBar(
+                          content: Text("Campaign ID cannot be empty.")),
+                    );
+                  }
                 }
               },
             ),
@@ -141,6 +147,30 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
             return;
           }
 
+          if (state is HomeCampaignEntered) {
+            if (_isNavigating) {
+              print(
+                  "HomeLobbyScreen BlocListener: Already navigating. Ignoring duplicate HomeCampaignEntered.");
+              return;
+            }
+            _isNavigating = true;
+            Navigator.of(context)
+                .push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    CampaignScreen(campaignId: state.campaignId),
+              ),
+            )
+                .then((_) {
+              print(
+                  "HomeLobbyScreen BlocListener: Returned from CampaignScreen. Not dispatching HomeStarted for now.");
+              if (mounted) {
+                context.read<HomeBloc>().add(const HomeStarted());
+              }
+              _isNavigating = false;
+            });
+          }
+
           if (state is HomeCampaignJoined) {
             if (_isNavigating) {
               print(
@@ -159,10 +189,11 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
             )
                 .then((_) {
               print(
-                  "HomeLobbyScreen BlocListener: Returned from CampaignScreen (after HomeCampaignJoined). Dispatching HomeStarted.");
-              if (mounted) {
-                context.read<HomeBloc>().add(const HomeStarted());
-              }
+                  "HomeLobbyScreen BlocListener: Returned from CampaignScreen (after HomeCampaignJoined). Not dispatching HomeStarted for now."); // Modified log
+              // if (mounted) {
+              //   // Ensure context is still valid before dispatching
+              //   // context.read<HomeBloc>().add(const HomeStarted()); // Intentionally commented out for diagnosis
+              // }
               _isNavigating = false;
             });
             print(
@@ -170,12 +201,15 @@ class _HomeLobbyScreenState extends State<HomeLobbyScreen> {
           } else if (state is HomeFailure) {
             print(
                 "HomeLobbyScreen BlocListener: State is HomeFailure with message: ${state.message}. Showing SnackBar.");
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error: ${state.message}'),
-                backgroundColor: Colors.red,
-              ),
-            );
+            // Guard with mounted check
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: ${state.message}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           } else {
             // Ignore other intermediate states to reduce noisy logs
             print(
