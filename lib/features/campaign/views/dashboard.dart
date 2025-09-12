@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/campaign.dart';
@@ -15,6 +16,20 @@ class DashboardView extends StatelessWidget {
     required this.isDm,
   });
 
+  Future<String> _getHostName(String uid) async {
+    try {
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        return data['username'] ?? uid;
+      }
+    } catch (e) {
+      debugPrint("Failed to fetch username for $uid: $e");
+    }
+    return uid;
+  }
+
   @override
   Widget build(BuildContext context) {
     final upcomingSessions = campaign.sessions;
@@ -29,9 +44,19 @@ class DashboardView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Dungeon Master: ${campaign.hostId}",
-              style: Theme.of(context).textTheme.titleSmall,
+            // Dungeon Master name (fetched from users collection)
+            FutureBuilder<String>(
+              future: _getHostName(campaign.hostId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text("Dungeon Master: Loading...");
+                }
+                final hostName = snapshot.data ?? campaign.hostId;
+                return Text(
+                  "Dungeon Master: $hostName",
+                  style: Theme.of(context).textTheme.titleSmall,
+                );
+              },
             ),
             const SizedBox(height: 24),
 
@@ -52,10 +77,13 @@ class DashboardView extends StatelessWidget {
                     child: ListTile(
                       title: Text(title),
                       subtitle: Text(desc),
-                      trailing: Text(date,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple)),
+                      trailing: Text(
+                        date,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
                     ),
                   );
                 }).toList(),
@@ -112,8 +140,7 @@ class DashboardView extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Navigate to Notes tab
-                      DefaultTabController.of(context)?.animateTo(2);
+                      // TODO: navigate to Notes view
                     },
                     icon: const Icon(Icons.book),
                     label: const Text("Campaign Notes"),
@@ -123,8 +150,7 @@ class DashboardView extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Navigate to Combat tab
-                      DefaultTabController.of(context)?.animateTo(2);
+                      // TODO: navigate to Combat view
                     },
                     icon: const Icon(Icons.sports_martial_arts),
                     label: const Text("Initiative Tracker"),
