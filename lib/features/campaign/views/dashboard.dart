@@ -20,7 +20,7 @@ class DashboardView extends StatelessWidget {
   Future<String> _getHostName(String uid) async {
     try {
       final doc =
-      await FirebaseFirestore.instance.collection('users').doc(uid).get();
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         return data['username'] ?? uid;
@@ -55,10 +55,7 @@ class DashboardView extends StatelessWidget {
                 final hostName = snapshot.data ?? campaign.hostId;
                 return Text(
                   "Dungeon Master: $hostName",
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleSmall,
+                  style: Theme.of(context).textTheme.titleSmall,
                 );
               },
             ),
@@ -80,7 +77,11 @@ class DashboardView extends StatelessWidget {
                       title: Text(newSession.title),
                       subtitle: Text(newSession.description),
                       trailing: Text(
-                        newSession.dateTime,
+                        newSession.dateTime
+                            .toLocal()
+                            .toString()
+                            .split('.')
+                            .first,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.deepPurple,
