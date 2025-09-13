@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/campaign.dart';
 import '../../../models/character.dart';
+import '../../../models/session.dart';
 
 class DashboardView extends StatelessWidget {
   final Campaign campaign;
@@ -19,7 +20,7 @@ class DashboardView extends StatelessWidget {
   Future<String> _getHostName(String uid) async {
     try {
       final doc =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         return data['username'] ?? uid;
@@ -54,7 +55,10 @@ class DashboardView extends StatelessWidget {
                 final hostName = snapshot.data ?? campaign.hostId;
                 return Text(
                   "Dungeon Master: $hostName",
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleSmall,
                 );
               },
             ),
@@ -69,16 +73,14 @@ class DashboardView extends StatelessWidget {
             else
               Column(
                 children: upcomingSessions.map((s) {
-                  final title = s['title'] ?? 'Unnamed Session';
-                  final desc = s['description'] ?? '';
-                  final date = s['date'] ?? '';
+                  final newSession = Session.fromJson(s);
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
-                      title: Text(title),
-                      subtitle: Text(desc),
+                      title: Text(newSession.title),
+                      subtitle: Text(newSession.description),
                       trailing: Text(
-                        date,
+                        newSession.dateTime,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.deepPurple,
