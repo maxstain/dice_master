@@ -3,18 +3,21 @@ import 'package:flutter/material.dart';
 
 import '../../../models/campaign.dart';
 import '../../../models/character.dart';
-import '../../../models/session.dart';
 
 class DashboardView extends StatelessWidget {
   final Campaign campaign;
   final List<Character> players;
   final bool isDm;
 
+  /// Callback to tell CampaignScreen to change bottom nav index
+  final void Function(int) onNavigate;
+
   const DashboardView({
     super.key,
     required this.campaign,
     required this.players,
     required this.isDm,
+    required this.onNavigate,
   });
 
   Future<String> _getHostName(String uid) async {
@@ -38,14 +41,13 @@ class DashboardView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(campaign.title),
-        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Dungeon Master name (fetched from users collection)
+            // Dungeon Master name (username lookup)
             FutureBuilder<String>(
               future: _getHostName(campaign.hostId),
               builder: (context, snapshot) {
@@ -70,18 +72,16 @@ class DashboardView extends StatelessWidget {
             else
               Column(
                 children: upcomingSessions.map((s) {
-                  final newSession = Session.fromJson(s);
+                  final title = s['title'] ?? 'Unnamed Session';
+                  final desc = s['description'] ?? '';
+                  final date = s['date'] ?? '';
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
-                      title: Text(newSession.title),
-                      subtitle: Text(newSession.description),
+                      title: Text(title),
+                      subtitle: Text(desc),
                       trailing: Text(
-                        newSession.dateTime
-                            .toLocal()
-                            .toString()
-                            .split('.')
-                            .first,
+                        date,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.deepPurple,
@@ -142,9 +142,7 @@ class DashboardView extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: navigate to Notes view
-                    },
+                    onPressed: () => onNavigate(2), // 👈 go to Notes
                     icon: const Icon(Icons.book),
                     label: const Text("Campaign Notes"),
                   ),
@@ -152,10 +150,8 @@ class DashboardView extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: navigate to Combat view
-                    },
-                    icon: const Icon(Icons.sports_martial_arts),
+                    onPressed: () => onNavigate(2), // 👈 go to Combat
+                    icon: const Icon(Icons.sports_kabaddi),
                     label: const Text("Initiative Tracker"),
                   ),
                 ),

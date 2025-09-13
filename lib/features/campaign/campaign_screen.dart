@@ -1,10 +1,11 @@
-import 'package:dice_master/features/campaign/views/combat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../campaign/bloc/campaign_bloc.dart';
+import '../campaign/bloc/campaign_event.dart';
 import '../campaign/bloc/campaign_state.dart';
 import 'views/characters.dart';
+import 'views/combat.dart';
 import 'views/dashboard.dart';
 import 'views/sessions.dart';
 
@@ -19,6 +20,12 @@ class CampaignScreen extends StatefulWidget {
 
 class _CampaignScreenState extends State<CampaignScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CampaignBloc>().add(CampaignStarted(widget.campaignId));
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -42,7 +49,12 @@ class _CampaignScreenState extends State<CampaignScreen> {
           final isDm = state.isDungeonMaster;
 
           final views = [
-            DashboardView(campaign: campaign, players: players, isDm: isDm),
+            DashboardView(
+              campaign: campaign,
+              players: players,
+              isDm: isDm,
+              onNavigate: _onItemTapped,
+            ),
             CharactersView(players: players, isDm: isDm),
             CombatView(campaign: campaign, players: players, isDm: isDm),
             SessionsView(campaign: campaign, players: players, isDm: isDm),
@@ -64,7 +76,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   label: 'Characters',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.bolt),
+                  icon: Icon(Icons.sports_kabaddi), // safe alternative
                   label: 'Combat',
                 ),
                 BottomNavigationBarItem(
