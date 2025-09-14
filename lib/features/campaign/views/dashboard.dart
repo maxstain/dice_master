@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/features/campaign/widgets/session_card.dart';
+import 'package:dice_master/models/session.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/campaign.dart';
@@ -39,9 +41,6 @@ class DashboardView extends StatelessWidget {
     final upcomingSessions = campaign.sessions;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(campaign.title),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -64,39 +63,46 @@ class DashboardView extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Upcoming Sessions
-            const Text("Upcoming Sessions",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Row(
+              children: [
+                Icon(Icons.schedule, color: Colors.deepPurple),
+                SizedBox(width: 8),
+                Text(
+                  "Upcoming Sessions",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             if (upcomingSessions.isEmpty)
               const Text("No upcoming sessions yet")
             else
               Column(
                 children: upcomingSessions.map((s) {
-                  final title = s['title'] ?? 'Unnamed Session';
-                  final desc = s['description'] ?? '';
-                  final date = s['date'] ?? '';
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      title: Text(title),
-                      subtitle: Text(desc),
-                      trailing: Text(
-                        date,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ),
-                  );
+                  final session = Session.fromJson(s);
+                  return SessionCard(session: session);
                 }).toList(),
               ),
 
             const SizedBox(height: 24),
 
             // Party Members
-            const Text("Party Members",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Row(
+              children: [
+                Icon(Icons.group, color: Colors.deepPurple),
+                SizedBox(width: 8),
+                Text(
+                  "Party Members",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             if (players.isEmpty)
               const Text("No players yet")

@@ -19,7 +19,6 @@ class SessionsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sessions")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SessionsList(

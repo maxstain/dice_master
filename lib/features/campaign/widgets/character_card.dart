@@ -23,7 +23,7 @@ class _CharacterCardState extends State<CharacterCard> {
             offset: const Offset(0, 4),
           ),
         ],
-        color: Colors.blueGrey.shade800,
+        color: Colors.grey.shade900,
       ),
       margin: const EdgeInsets.symmetric(
           vertical: 8.0, horizontal: 10.0), // Adjusted margin

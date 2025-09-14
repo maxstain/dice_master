@@ -14,10 +14,9 @@ class _SessionCardState extends State<SessionCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blueGrey.shade800,
+        color: Colors.grey.shade900,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -35,7 +34,7 @@ class _SessionCardState extends State<SessionCard> {
             children: [
               Text(
                 widget.session.title,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Container(
                 margin: const EdgeInsets.only(left: 8),
@@ -45,19 +44,23 @@ class _SessionCardState extends State<SessionCard> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                    "${widget.session.dateTime.toLocal()}"
-                        .split(' ')[0]
-                        .split('-')
-                        .reversed
-                        .join('/'),
-                    style: const TextStyle(color: Colors.white)),
+                  "${widget.session.dateTime.toLocal()}"
+                      .split(' ')[0]
+                      .split('-')
+                      .reversed
+                      .join('/'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
             widget.session.description,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),

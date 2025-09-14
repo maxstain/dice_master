@@ -18,7 +18,6 @@ class CombatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Initiative Tracker")),
       body: players.isEmpty
           ? const Center(child: Text("No participants yet"))
           : ListView.builder(
