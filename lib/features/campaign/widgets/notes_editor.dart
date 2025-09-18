@@ -1,9 +1,9 @@
+import 'package:dice_master/features/campaign/bloc/campaign_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/campaign.dart';
 import '../bloc/campaign_bloc.dart';
-import '../bloc/campaign_event.dart';
 
 class NotesEditor extends StatefulWidget {
   final Campaign campaign;

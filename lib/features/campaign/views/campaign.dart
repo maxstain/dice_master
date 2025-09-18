@@ -1,0 +1,192 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../models/campaign.dart';
+import '../../../models/character.dart';
+import '../bloc/campaign_bloc.dart';
+import '../bloc/campaign_event.dart';
+
+class CampaignView extends StatelessWidget {
+  final Campaign campaign;
+  final List<Character> players;
+  final List<Map<String, dynamic>> notes;
+  final bool isDm;
+
+  const CampaignView({
+    super.key,
+    required this.campaign,
+    required this.players,
+    required this.notes,
+    required this.isDm,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(campaign.title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 4),
+            Text("Campaign Notes and Details",
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Text("Campaign Notes",
+                    style: Theme.of(context).textTheme.bodyMedium),
+                const Spacer(),
+                if (isDm)
+                  IconButton(
+                    icon: const Icon(Icons.add_circle, color: Colors.purple),
+                    onPressed: () => _showAddNoteDialog(context, campaign.id),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: notes.isEmpty
+                  ? const Center(child: Text("No notes available"))
+                  : ListView.builder(
+                      itemCount: notes.length,
+                      itemBuilder: (ctx, i) {
+                        final note = notes[i];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            title: Text(note["title"] ?? "Untitled"),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(note["content"] ?? ""),
+                                if (note["date"] != null)
+                                  Text(note["date"],
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall),
+                              ],
+                            ),
+                            trailing: isDm
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () => _showEditNoteDialog(
+                                          context,
+                                          campaign.id,
+                                          note["id"],
+                                          note["title"] ?? "",
+                                          note["content"] ?? "",
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () {
+                                          context.read<CampaignBloc>().add(
+                                                DeleteNoteRequested(
+                                                    campaign.id, note["id"]),
+                                              );
+                                        },
+                                      ),
+                                    ],
+                                  )
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddNoteDialog(BuildContext context, String campaignId) {
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Add Note"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: "Title")),
+            TextField(
+                controller: contentController,
+                decoration: const InputDecoration(labelText: "Content"),
+                maxLines: 3),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              final newNote = {
+                "title": titleController.text.trim(),
+                "content": contentController.text.trim(),
+                "date": DateTime.now().toString().split(" ").first,
+              };
+              context
+                  .read<CampaignBloc>()
+                  .add(AddNoteRequested(campaignId, newNote));
+              Navigator.pop(ctx);
+            },
+            child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditNoteDialog(BuildContext context, String campaignId,
+      String noteId, String title, String content) {
+    final titleController = TextEditingController(text: title);
+    final contentController = TextEditingController(text: content);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Edit Note"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: "Title")),
+            TextField(
+                controller: contentController,
+                decoration: const InputDecoration(labelText: "Content"),
+                maxLines: 3),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              final updatedNote = {
+                "title": titleController.text.trim(),
+                "content": contentController.text.trim(),
+                "date": DateTime.now().toString().split(" ").first,
+              };
+              context
+                  .read<CampaignBloc>()
+                  .add(UpdateNoteRequested(campaignId, noteId, updatedNote));
+              Navigator.pop(ctx);
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+}

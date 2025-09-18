@@ -1,7 +1,5 @@
-import 'package:dice_master/models/character.dart';
+import 'package:dice_master/models/campaign.dart';
 import 'package:equatable/equatable.dart';
-
-import '../../../models/campaign.dart';
 
 abstract class CampaignEvent extends Equatable {
   const CampaignEvent();
@@ -10,6 +8,7 @@ abstract class CampaignEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// === Core ===
 class CampaignStarted extends CampaignEvent {
   final String campaignId;
 
@@ -19,27 +18,61 @@ class CampaignStarted extends CampaignEvent {
   List<Object?> get props => [campaignId];
 }
 
-class CampaignUpdated extends CampaignEvent {
-  final Campaign campaign;
+// === Characters ===
+class AddCharacterRequested extends CampaignEvent {
+  final String campaignId;
+  final Map<String, dynamic> characterData;
 
-  const CampaignUpdated(this.campaign);
+  const AddCharacterRequested(this.campaignId, this.characterData);
 
   @override
-  List<Object?> get props => [campaign];
+  List<Object?> get props => [campaignId, characterData];
 }
 
-/// DM adds a new session
+// === Sessions ===
 class AddSessionRequested extends CampaignEvent {
   final String campaignId;
-  final Map<String, dynamic> session;
+  final Map<String, dynamic> sessionData;
 
-  const AddSessionRequested(this.campaignId, this.session);
+  const AddSessionRequested(this.campaignId, this.sessionData);
 
   @override
-  List<Object?> get props => [campaignId, session];
+  List<Object?> get props => [campaignId, sessionData];
 }
 
-/// DM updates notes
+// === Notes ===
+class AddNoteRequested extends CampaignEvent {
+  final String campaignId;
+  final Map<String, dynamic> noteData;
+
+  const AddNoteRequested(this.campaignId, this.noteData);
+
+  @override
+  List<Object?> get props => [campaignId, noteData];
+}
+
+class UpdateNoteRequested extends CampaignEvent {
+  final String campaignId;
+  final String noteId;
+  final Map<String, dynamic> noteData;
+
+  const UpdateNoteRequested(this.campaignId, this.noteId, this.noteData);
+
+  @override
+  List<Object?> get props => [campaignId, noteId, noteData];
+}
+
+class DeleteNoteRequested extends CampaignEvent {
+  final String campaignId;
+  final String noteId;
+
+  const DeleteNoteRequested(this.campaignId, this.noteId);
+
+  @override
+  List<Object?> get props => [campaignId, noteId];
+}
+
+// === Misc ===
 class UpdateNotesRequested extends CampaignEvent {
   final String campaignId;
   final Map<String, dynamic> notes;
@@ -50,24 +83,46 @@ class UpdateNotesRequested extends CampaignEvent {
   List<Object?> get props => [campaignId, notes];
 }
 
-class CampaignDataChanged extends CampaignEvent {
-  final Campaign? campaign;
-  final List<Character> players;
+class JoinSessionRequested extends CampaignEvent {
+  final String campaignId;
+  final String sessionId;
+  final String characterId;
 
-  const CampaignDataChanged(this.campaign, this.players);
+  const JoinSessionRequested(this.campaignId, this.sessionId, this.characterId);
+
+  @override
+  List<Object?> get props => [campaignId, sessionId, characterId];
+}
+
+class ClearMessagesRequested extends CampaignEvent {
+  const ClearMessagesRequested();
+}
+
+// === Private stream events ===
+class CampaignUpdated extends CampaignEvent {
+  final Campaign? campaign;
+
+  const CampaignUpdated(this.campaign);
+
+  @override
+  List<Object?> get props => [campaign ?? "null"];
+}
+
+class PlayersUpdated extends CampaignEvent {
+  final Campaign campaign;
+  final List<dynamic> players;
+
+  const PlayersUpdated(this.campaign, this.players);
 
   @override
   List<Object?> get props => [campaign, players];
 }
 
-/// Player joins a session
-class JoinSessionRequested extends CampaignEvent {
-  final String campaignId;
-  final String sessionId;
-  final String userId;
+class NotesUpdated extends CampaignEvent {
+  final List<Map<String, dynamic>> notes;
 
-  const JoinSessionRequested(this.campaignId, this.sessionId, this.userId);
+  const NotesUpdated(this.notes);
 
   @override
-  List<Object?> get props => [campaignId, sessionId, userId];
+  List<Object?> get props => [notes];
 }

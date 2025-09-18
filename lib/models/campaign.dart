@@ -57,4 +57,28 @@ class Campaign {
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
   }
+
+  static fromJson(Map<String, dynamic> map) {
+    return Campaign(
+      id: map['id'] as String,
+      title: map['title'] as String? ?? 'Untitled Campaign',
+      hostId: map['hostId'] as String? ?? 'DEFAULT_HOST_ID',
+      sessions: (map['sessions'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .toList() ??
+          [],
+      sessionCode: map['sessionCode'] as String? ?? 'NO_CODE',
+      notes: (map['notes'] is Map<String, dynamic>)
+          ? Map<String, dynamic>.from(map['notes'])
+          : {},
+      players: [],
+      // Players should be populated separately
+      createdAt: (map['createdAt'] is Timestamp)
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt: (map['updatedAt'] is Timestamp)
+          ? (map['updatedAt'] as Timestamp).toDate()
+          : DateTime.fromMillisecondsSinceEpoch(0),
+    );
+  }
 }

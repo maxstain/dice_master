@@ -1,8 +1,7 @@
 import 'dart:async';
 
+import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/campaign.dart';
 import '../../../models/character.dart';
@@ -10,175 +9,182 @@ import 'campaign_event.dart';
 import 'campaign_state.dart';
 
 class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
-  final FirebaseFirestore _firestore;
-  final FirebaseAuth _auth;
   StreamSubscription<DocumentSnapshot>? _campaignSub;
   StreamSubscription<QuerySnapshot>? _playersSub;
+  StreamSubscription<QuerySnapshot>? _notesSub;
 
-  Campaign? _currentCampaign;
-  List<Character> _currentPlayers = [];
-
-  CampaignBloc({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance,
-        super(CampaignInitial()) {
+  CampaignBloc() : super(CampaignLoading()) {
     on<CampaignStarted>(_onStarted);
-    on<CampaignUpdated>(_onUpdated);
-    on<AddSessionRequested>(_onAddSessionRequested);
-    on<UpdateNotesRequested>(_onUpdateNotesRequested);
-    on<JoinSessionRequested>(_onJoinSessionRequested);
-    on<CampaignDataChanged>(_onCampaignDataChanged);
+
+    on<AddCharacterRequested>(_onAddCharacter);
+    on<AddSessionRequested>(_onAddSession);
+
+    on<AddNoteRequested>(_onAddNote);
+    on<UpdateNoteRequested>(_onUpdateNote);
+    on<DeleteNoteRequested>(_onDeleteNote);
+
+    on<UpdateNotesRequested>(_onUpdateNotes);
+    on<JoinSessionRequested>(_onJoinSession);
+    on<ClearMessagesRequested>(_onClearMessages);
+
+    // Private stream events
+    on<CampaignUpdated>(_onCampaignUpdated);
+    on<PlayersUpdated>(_onPlayersUpdated);
+    on<NotesUpdated>(_onNotesUpdated);
   }
 
   Future<void> _onStarted(
       CampaignStarted event, Emitter<CampaignState> emit) async {
     emit(CampaignLoading());
 
-    try {
-      _campaignSub?.cancel();
-      _campaignSub = _firestore
-          .collection('campaigns')
-          .doc(event.campaignId)
-          .snapshots()
-          .listen((snap) {
-        if (snap.exists) {
-          final campaign = Campaign.fromDoc(snap);
-          add(CampaignDataChanged(campaign, _currentPlayers));
-        } else {
-          add(const CampaignDataChanged(null, []));
-        }
+    final campaignRef = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId);
+
+    await _campaignSub?.cancel();
+    await _playersSub?.cancel();
+    await _notesSub?.cancel();
+
+    _campaignSub = campaignRef.snapshots().listen((snapshot) {
+      if (!snapshot.exists) {
+        add(const CampaignUpdated(null));
+        return;
+      }
+
+      final data = snapshot.data() as Map<String, dynamic>;
+      final campaign = Campaign.fromJson({...data, 'id': snapshot.id});
+      add(CampaignUpdated(campaign));
+
+      // Players sub
+      _playersSub = campaignRef.collection('players').snapshots().listen((qs) {
+        final players = qs.docs
+            .map((doc) => Character.fromJson({...doc.data(), 'id': doc.id}))
+            .toList();
+        add(PlayersUpdated(campaign, players));
       });
 
-      _playersSub?.cancel();
-      _playersSub = _firestore
-          .collection('campaigns')
-          .doc(event.campaignId)
-          .collection('players')
-          .snapshots()
-          .listen((snap) {
-        final characters =
-            snap.docs.map((d) => Character.fromJson(d.data())).toList();
-        add(CampaignDataChanged(_currentCampaign, characters));
+      // Notes sub
+      _notesSub = campaignRef.collection('notes').snapshots().listen((qs) {
+        final notes = qs.docs
+            .map((doc) => {...doc.data(), "id": doc.id})
+            .cast<Map<String, dynamic>>()
+            .toList();
+        add(NotesUpdated(notes));
       });
-    } catch (e) {
-      emit(CampaignFailure("Failed to load campaign: $e"));
+    });
+  }
+
+  // === Characters ===
+  Future<void> _onAddCharacter(
+      AddCharacterRequested event, Emitter<CampaignState> emit) async {
+    final ref = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId)
+        .collection('players')
+        .doc(event.characterData['id']);
+    await ref.set(event.characterData);
+  }
+
+  // === Sessions ===
+  Future<void> _onAddSession(
+      AddSessionRequested event, Emitter<CampaignState> emit) async {
+    final ref = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId);
+
+    await ref.update({
+      "sessions": FieldValue.arrayUnion([event.sessionData]),
+    });
+  }
+
+  // === Notes ===
+  Future<void> _onAddNote(
+      AddNoteRequested event, Emitter<CampaignState> emit) async {
+    final ref = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId)
+        .collection('notes')
+        .doc();
+
+    await ref.set(event.noteData);
+  }
+
+  Future<void> _onUpdateNote(
+      UpdateNoteRequested event, Emitter<CampaignState> emit) async {
+    final ref = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId)
+        .collection('notes')
+        .doc(event.noteId);
+
+    await ref.update(event.noteData);
+  }
+
+  Future<void> _onDeleteNote(
+      DeleteNoteRequested event, Emitter<CampaignState> emit) async {
+    final ref = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId)
+        .collection('notes')
+        .doc(event.noteId);
+
+    await ref.delete();
+  }
+
+  // === Misc ===
+  Future<void> _onUpdateNotes(
+      UpdateNotesRequested event, Emitter<CampaignState> emit) async {
+    // Deprecated: we now use subcollection
+  }
+
+  Future<void> _onJoinSession(
+      JoinSessionRequested event, Emitter<CampaignState> emit) async {
+    final ref = FirebaseFirestore.instance
+        .collection('campaigns')
+        .doc(event.campaignId)
+        .collection('sessions')
+        .doc(event.sessionId);
+
+    await ref.update({
+      "participants": FieldValue.arrayUnion([event.characterId]),
+    });
+  }
+
+  void _onClearMessages(
+      ClearMessagesRequested event, Emitter<CampaignState> emit) {
+    if (state is CampaignLoaded) {
+      emit((state as CampaignLoaded).copyWith(clearMessages: true));
     }
   }
 
-  void _onCampaignDataChanged(
-      CampaignDataChanged event, Emitter<CampaignState> emit) {
+  // === Private events ===
+  void _onCampaignUpdated(CampaignUpdated event, Emitter<CampaignState> emit) {
     if (event.campaign == null) {
       emit(const CampaignFailure("Campaign not found"));
       return;
     }
-    _currentCampaign = event.campaign;
-    _currentPlayers = event.players;
-
-    final currentUser = _auth.currentUser;
-    final isDm =
-        currentUser != null && _currentCampaign!.hostId == currentUser.uid;
 
     emit(CampaignLoaded(
-      campaign: _currentCampaign!,
-      players: _currentPlayers,
-      isDungeonMaster: isDm,
+      campaign: event.campaign!,
+      players: const [],
+      notes: const [],
+      isDungeonMaster: false,
     ));
   }
 
-  void _emitCombinedState(Emitter<CampaignState> emit) {
-    if (_currentCampaign == null) return;
-
-    final currentUser = _auth.currentUser;
-    final isDm =
-        currentUser != null && _currentCampaign!.hostId == currentUser.uid;
-
-    emit(CampaignLoaded(
-      campaign: _currentCampaign!,
-      players: _currentPlayers,
-      isDungeonMaster: isDm,
-    ));
-  }
-
-  void _onUpdated(CampaignUpdated event, Emitter<CampaignState> emit) {
-    // No longer used, state emitted via _emitCombinedState
-  }
-
-  Future<void> _onAddSessionRequested(
-      AddSessionRequested event, Emitter<CampaignState> emit) async {
-    try {
-      final doc = _firestore.collection('campaigns').doc(event.campaignId);
-      await doc.update({
-        'sessions': FieldValue.arrayUnion([event.session])
-      });
-    } catch (e) {
-      emit(CampaignFailure("Failed to add session: $e"));
+  void _onPlayersUpdated(PlayersUpdated event, Emitter<CampaignState> emit) {
+    if (state is CampaignLoaded) {
+      emit((state as CampaignLoaded).copyWith(
+        players: event.players.cast<Character>(),
+      ));
     }
   }
 
-  Future<void> _onUpdateNotesRequested(
-      UpdateNotesRequested event, Emitter<CampaignState> emit) async {
-    try {
-      final doc = _firestore.collection('campaigns').doc(event.campaignId);
-      await doc.update({
-        'notes': event.notes,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
-      emit(CampaignFailure("Failed to update notes: $e"));
-    }
-  }
-
-  Future<void> _onJoinSessionRequested(
-      JoinSessionRequested event, Emitter<CampaignState> emit) async {
-    try {
-      final campaignRef =
-          _firestore.collection('campaigns').doc(event.campaignId);
-
-      final snap = await campaignRef.get();
-      if (!snap.exists) {
-        emit(CampaignFailure("Campaign not found"));
-        return;
-      }
-
-      final data = snap.data() as Map<String, dynamic>;
-      final sessions = List<Map<String, dynamic>>.from(data['sessions'] ?? []);
-
-      final index = sessions.indexWhere((s) => s['id'] == event.sessionId);
-      if (index == -1) {
-        emit(CampaignFailure("Session not found"));
-        return;
-      }
-
-      final participants =
-          (sessions[index]['participants'] as List<dynamic>? ?? []);
-      if (!participants.contains(event.userId)) {
-        participants.add(event.userId);
-        sessions[index]['participants'] = participants;
-        await campaignRef.update({'sessions': sessions});
-      }
-
-      // 🔑 Ensure Character doc exists in subcollection
-      final charRef = campaignRef.collection('players').doc(event.userId);
-      final charSnap = await charRef.get();
-      if (!charSnap.exists) {
-        final defaultCharacter = Character(
-          id: event.userId,
-          name: "New Adventurer",
-          role: "adventurer",
-          race: "human",
-          level: 1,
-          hp: 10,
-          maxHp: 30,
-          xp: 0.0,
-          items: [],
-          imageUrl: "",
-        );
-        await charRef.set(defaultCharacter.toJson());
-      }
-    } catch (e) {
-      emit(CampaignFailure("Failed to join session: $e"));
+  void _onNotesUpdated(NotesUpdated event, Emitter<CampaignState> emit) {
+    if (state is CampaignLoaded) {
+      emit((state as CampaignLoaded).copyWith(
+        notes: event.notes,
+      ));
     }
   }
 
@@ -186,6 +192,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
   Future<void> close() {
     _campaignSub?.cancel();
     _playersSub?.cancel();
+    _notesSub?.cancel();
     return super.close();
   }
 }
