@@ -74,12 +74,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           .where('players', arrayContains: currentUser.uid)
           .get();
 
+      // 🔑 Use fromDoc to convert Firestore document to Campaign model
       final campaigns = snap.docs
           .map((doc) =>
               Campaign.fromDoc(doc)) // 🔑 use fromDoc instead of fromJson
           .toList();
 
-      emit(HomeLoaded(campaigns: campaigns));
+      emit(HomeLoaded(campaigns: campaigns as List<Campaign>));
     } catch (e, st) {
       print("HomeBloc: Firestore error $e\n$st");
       emit(HomeFailure(e.toString()));
@@ -103,7 +104,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         players: [],
         sessions: [],
         sessionCode: doc.id.substring(0, 6).toUpperCase(),
-        notes: {},
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

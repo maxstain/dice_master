@@ -17,10 +17,6 @@ class HomeDungeonMasterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notes = campaign.notes.isEmpty
-        ? "No notes yet"
-        : campaign.notes.entries.map((e) => "${e.key}: ${e.value}").join("\n");
-
     return Scaffold(
       appBar: AppBar(
         title: Text(campaign.title),
@@ -41,14 +37,17 @@ class HomeDungeonMasterScreen extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: NotesEditor(campaign: campaign),
+            child: NotesEditor(
+              campaignId: campaign.id,
+              isDm: true,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SessionsList(
               campaign: campaign,
               isDungeonMaster: true,
-              players: [],
+              players: players,
             ),
           ),
         ],

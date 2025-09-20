@@ -41,7 +41,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
         case 1:
           return "Characters";
         case 2:
-          return "Combat";
+          return "Campaign";
         case 3:
           return "Sessions";
       }

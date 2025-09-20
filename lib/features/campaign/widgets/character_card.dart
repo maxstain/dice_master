@@ -41,12 +41,13 @@ class _CharacterCardState extends State<CharacterCard> {
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.white, width: 2.0),
                       borderRadius: BorderRadius.circular(100.0),
+                      color: Colors.black,
                     ),
                     child: widget.character.imageUrl.isNotEmpty
                         ? Image.network(
                             widget.character.imageUrl,
-                            width: 64,
-                            height: 64,
+                            width: 66,
+                            height: 66,
                             fit: BoxFit.cover,
                           )
                         : const Icon(

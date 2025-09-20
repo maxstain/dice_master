@@ -65,7 +65,7 @@ class DashboardView extends StatelessWidget {
             // Upcoming Sessions
             const Row(
               children: [
-                Icon(Icons.schedule, color: Colors.deepPurple),
+                Icon(Icons.calendar_month_outlined, color: Colors.deepPurple),
                 SizedBox(width: 8),
                 Text(
                   "Upcoming Sessions",

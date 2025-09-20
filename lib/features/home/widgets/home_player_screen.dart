@@ -17,16 +17,13 @@ class HomePlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notes = campaign.notes.isEmpty
-        ? "No notes yet"
-        : campaign.notes.entries.map((e) => "${e.key}: ${e.value}").join("\n");
-
     return Scaffold(
       appBar: AppBar(
         title: Text(campaign.title),
       ),
       body: ListView(
         children: [
+          // --- Host Info ---
           ListTile(
             title: const Text('Host'),
             subtitle: FutureBuilder<DocumentSnapshot>(
@@ -47,6 +44,8 @@ class HomePlayerScreen extends StatelessWidget {
               },
             ),
           ),
+
+          // --- Players Info ---
           ListTile(
             title: Text('Players (${players.length})'),
             subtitle: Text(
@@ -55,16 +54,44 @@ class HomePlayerScreen extends StatelessWidget {
                   : players.map((p) => p.name).join(", "),
             ),
           ),
+
+          // --- Notes from Firestore subcollection ---
           ListTile(
             title: const Text('Notes'),
-            subtitle: Text(notes),
+            subtitle: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('campaigns')
+                  .doc(campaign.id)
+                  .collection('notes')
+                  .orderBy('date', descending: true)
+                  .snapshots(),
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text("Loading notes...");
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Text("No notes yet");
+                }
+                final notes = snapshot.data!.docs.map((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final title = data['title'] ?? 'Untitled';
+                  final content = data['content'] ?? '';
+                  final date = data['date'] ?? '';
+                  return "- $title: $content (${date.toString()})";
+                }).join("\n");
+
+                return Text(notes);
+              },
+            ),
           ),
+
+          // --- Sessions List ---
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SessionsList(
               campaign: campaign,
               isDungeonMaster: false,
-              players: [],
+              players: players,
             ),
           ),
         ],

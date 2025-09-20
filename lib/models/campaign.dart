@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dice_master/models/character.dart';
+
+import 'character.dart';
 
 class Campaign {
   final String id;
   final String title;
   final String hostId;
+  final List<Character> players;
   final List<Map<String, dynamic>> sessions;
   final String sessionCode;
-  final Map<String, dynamic> notes;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,70 +16,91 @@ class Campaign {
     required this.id,
     required this.title,
     required this.hostId,
+    this.players = const [],
     this.sessions = const [],
     required this.sessionCode,
-    required this.notes,
-    required List<Character> players,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  factory Campaign.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data() ?? {};
+  factory Campaign.fromJson(Map<String, dynamic> json) {
     return Campaign(
-      id: doc.id,
-      title: data['title'] as String? ?? 'Untitled Campaign',
-      hostId: data['hostId'] as String? ?? 'DEFAULT_HOST_ID',
-      sessions: (data['sessions'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
+      id: json['id'] as String? ?? 'DEFAULT_ID',
+      title: json['title'] as String? ?? 'Untitled Campaign',
+      hostId: json['hostId'] as String? ?? 'DEFAULT_HOST_ID',
+      players: [],
+      // loaded separately
+      sessions: (json['sessions'] as List<dynamic>?)
+              ?.map((session) => session as Map<String, dynamic>)
               .toList() ??
           [],
-      sessionCode: data['sessionCode'] as String? ?? 'NO_CODE',
-      notes: (data['notes'] is Map<String, dynamic>)
-          ? Map<String, dynamic>.from(data['notes'])
-          : {},
-      players: [],
-      // Players should be populated separately
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ??
-          DateTime.fromMillisecondsSinceEpoch(0),
-      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ??
-          DateTime.fromMillisecondsSinceEpoch(0),
+      sessionCode: json['sessionCode'] as String? ?? 'NO_CODE',
+      createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (json['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'title': title,
       'hostId': hostId,
       'sessions': sessions,
       'sessionCode': sessionCode,
-      'notes': notes,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
   }
 
-  static fromJson(Map<String, dynamic> map) {
+  @override
+  String toString() {
+    return 'Campaign(id: $id, title: $title, hostId: $hostId, players: ${players.length}, sessions: $sessions, sessionCode: $sessionCode, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  static Campaign empty() {
     return Campaign(
-      id: map['id'] as String,
-      title: map['title'] as String? ?? 'Untitled Campaign',
-      hostId: map['hostId'] as String? ?? 'DEFAULT_HOST_ID',
-      sessions: (map['sessions'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
+      id: 'DEFAULT_ID',
+      title: 'Untitled Campaign',
+      hostId: 'DEFAULT_HOST_ID',
+      players: [],
+      sessions: [],
+      sessionCode: 'NO_CODE',
+      createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    );
+  }
+
+  bool isEmpty() {
+    return id == 'DEFAULT_ID' && title == 'Untitled Campaign';
+  }
+
+  static Map<String, dynamic> newCampaign(String title, String hostId,
+      List<Map<String, dynamic>> sessions, String sessionCode) {
+    return {
+      'title': title,
+      'hostId': hostId,
+      'sessions': sessions,
+      'sessionCode': sessionCode,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  static fromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data();
+    return Campaign(
+      id: doc.id,
+      title: data['title'] as String? ?? 'Untitled Campaign',
+      hostId: data['hostId'] as String? ?? 'DEFAULT_HOST_ID',
+      players: [],
+      // loaded separately
+      sessions: (data['sessions'] as List<dynamic>?)
+              ?.map((session) => session as Map<String, dynamic>)
               .toList() ??
           [],
-      sessionCode: map['sessionCode'] as String? ?? 'NO_CODE',
-      notes: (map['notes'] is Map<String, dynamic>)
-          ? Map<String, dynamic>.from(map['notes'])
-          : {},
-      players: [],
-      // Players should be populated separately
-      createdAt: (map['createdAt'] is Timestamp)
-          ? (map['createdAt'] as Timestamp).toDate()
-          : DateTime.fromMillisecondsSinceEpoch(0),
-      updatedAt: (map['updatedAt'] is Timestamp)
-          ? (map['updatedAt'] as Timestamp).toDate()
-          : DateTime.fromMillisecondsSinceEpoch(0),
+      sessionCode: data['sessionCode'] as String? ?? 'NO_CODE',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 }
