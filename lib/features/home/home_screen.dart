@@ -1,9 +1,8 @@
+import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/home/widgets/home_lobby_screen.dart';
 import 'package:dice_master/features/home/widgets/home_skeleton_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'bloc/home_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,8 +15,29 @@ class HomeScreen extends StatelessWidget {
           return const HomeSkeletonScreen();
         } else if (state is HomeFailure) {
           return Scaffold(
+            appBar: AppBar(title: const Text("Campaign Lobby")),
             body: Center(
-              child: Text("Error: ${state.message}"),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Error: ${state.message}",
+                    textAlign: TextAlign.center,
+                    style:
+                        const TextStyle(color: Colors.redAccent, fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context
+                          .read<HomeBloc>()
+                          .add(const HomeTriggerInitialLoad());
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text("Retry"),
+                  ),
+                ],
+              ),
             ),
           );
         } else if (state is HomeLoaded) {
