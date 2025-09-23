@@ -94,7 +94,10 @@ class Campaign {
       hostId: data['hostId'] as String? ?? 'DEFAULT_HOST_ID',
       players: [],
       // loaded separately
-      sessions: (data['sessions'])?.map((session) => session).toList() ?? [],
+      sessions: (data['sessions'] as List<dynamic>?)
+              ?.map((session) => session as Map<String, dynamic>)
+              .toList() ??
+          [],
       sessionCode: data['sessionCode'] as String? ?? 'NO_CODE',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
