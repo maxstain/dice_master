@@ -1,4 +1,5 @@
 import 'package:dice_master/features/home/widgets/home_lobby_screen.dart';
+import 'package:dice_master/features/home/widgets/home_skeleton_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,9 +13,7 @@ class HomeScreen extends StatelessWidget {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const HomeSkeletonScreen();
         } else if (state is HomeFailure) {
           return Scaffold(
             body: Center(
