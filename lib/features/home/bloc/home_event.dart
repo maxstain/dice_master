@@ -47,3 +47,12 @@ class _CampaignsUpdatedError extends HomeEvent {
   @override
   List<Object?> get props => [message];
 }
+
+class _CampaignWarning extends HomeEvent {
+  final String message;
+
+  const _CampaignWarning(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

@@ -9,7 +9,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state is HomeLoaded && state.warning != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.warning!),
+              backgroundColor: Colors.orangeAccent,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
       builder: (context, state) {
         if (state is HomeLoading) {
           return const HomeSkeletonScreen();

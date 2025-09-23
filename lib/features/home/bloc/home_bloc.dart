@@ -22,6 +22,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<_CampaignsUpdatedError>((event, emit) {
       emit(HomeFailure(event.message));
     });
+    on<_CampaignWarning>((event, emit) {
+      if (state is HomeLoaded) {
+        // Keep campaigns list but expose a warning
+        emit(HomeLoaded(
+          campaigns: (state as HomeLoaded).campaigns,
+          warning: event.message,
+        ));
+      }
+    });
   }
 
   Future<void> _onTriggerInitialLoad(
@@ -74,6 +83,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           .listen((doc) {
         final username = (doc.data() ?? {})['username'] ?? c.hostId;
         add(_CampaignMetaUpdated(campaignId: c.id, hostName: username));
+      }, onError: (e) {
+        add(_CampaignWarning("Failed to load host for ${c.title}: $e"));
       });
 
       _playersSubs[c.id]?.cancel();
@@ -84,6 +95,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           .snapshots()
           .listen((qs) {
         add(_CampaignMetaUpdated(campaignId: c.id, playerCount: qs.size));
+      }, onError: (e) {
+        add(_CampaignWarning("Failed to load players for ${c.title}: $e"));
       });
     }
   }

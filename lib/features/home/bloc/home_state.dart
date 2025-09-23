@@ -39,11 +39,12 @@ class CampaignWithMeta extends Equatable {
 
 class HomeLoaded extends HomeState {
   final List<CampaignWithMeta> campaigns;
+  final String? warning;
 
-  const HomeLoaded({required this.campaigns});
+  const HomeLoaded({required this.campaigns, this.warning});
 
   @override
-  List<Object?> get props => [campaigns];
+  List<Object?> get props => [campaigns, warning ?? ''];
 }
 
 class HomeFailure extends HomeState {
