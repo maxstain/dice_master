@@ -1,5 +1,4 @@
-import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+part of 'home_bloc.dart';
 
 abstract class HomeEvent extends Equatable {
   const HomeEvent();
@@ -8,52 +7,43 @@ abstract class HomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Trigger initial campaign load when app starts or user logs in
-class TriggerInitialLoad extends HomeEvent {
-  const TriggerInitialLoad();
+class HomeTriggerInitialLoad extends HomeEvent {
+  const HomeTriggerInitialLoad();
 }
 
-/// Manual refresh of campaign list
-class HomeStarted extends HomeEvent {
-  const HomeStarted();
+class HomeRefreshRequested extends HomeEvent {
+  const HomeRefreshRequested();
 }
 
-/// Fired when Firebase auth state changes
-class HomeUserChanged extends HomeEvent {
-  final User? user;
+class _CampaignsUpdated extends HomeEvent {
+  final List<Campaign> campaigns;
 
-  const HomeUserChanged(this.user);
+  const _CampaignsUpdated(this.campaigns);
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [campaigns];
 }
 
-/// Create a new campaign
-class CreateCampaignRequested extends HomeEvent {
-  final String title;
-
-  const CreateCampaignRequested(this.title);
-
-  @override
-  List<Object?> get props => [title];
-}
-
-/// Join an existing campaign by code
-class JoinCampaignRequested extends HomeEvent {
-  final String sessionCode;
-
-  const JoinCampaignRequested(this.sessionCode);
-
-  @override
-  List<Object?> get props => [sessionCode];
-}
-
-/// Leave a campaign
-class LeaveCampaignRequested extends HomeEvent {
+class _CampaignMetaUpdated extends HomeEvent {
   final String campaignId;
+  final String? hostName;
+  final int? playerCount;
 
-  const LeaveCampaignRequested(this.campaignId);
+  const _CampaignMetaUpdated({
+    required this.campaignId,
+    this.hostName,
+    this.playerCount,
+  });
 
   @override
-  List<Object?> get props => [campaignId];
+  List<Object?> get props => [campaignId, hostName, playerCount];
+}
+
+class _CampaignsUpdatedError extends HomeEvent {
+  final String message;
+
+  const _CampaignsUpdatedError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

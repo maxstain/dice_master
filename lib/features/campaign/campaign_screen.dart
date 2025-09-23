@@ -27,6 +27,130 @@ class _CampaignScreenState extends State<CampaignScreen> {
     context.read<CampaignBloc>().add(CampaignStarted(widget.campaignId));
   }
 
+  Future<void> _showAddSessionDialog(
+      BuildContext context, String campaignId) async {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    DateTime? selectedDate;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return BlocListener<CampaignBloc, CampaignState>(
+          listenWhen: (prev, curr) =>
+              curr is CampaignLoaded && curr.successMessage != null,
+          listener: (ctx, state) {
+            if (state is CampaignLoaded && state.successMessage != null) {
+              Navigator.pop(ctx); // auto close on success
+            }
+          },
+          child: StatefulBuilder(
+            builder: (ctx, setState) {
+              return BlocBuilder<CampaignBloc, CampaignState>(
+                builder: (ctx, state) {
+                  final isProcessing =
+                      state is CampaignLoaded ? state.isProcessing : false;
+
+                  return AlertDialog(
+                    title: const Text("Add Session"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                            controller: titleController,
+                            decoration:
+                                const InputDecoration(labelText: "Title")),
+                        TextField(
+                            controller: descriptionController,
+                            decoration: const InputDecoration(
+                                labelText: "Description")),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                selectedDate == null
+                                    ? "No date selected"
+                                    : "Date: ${selectedDate!.toLocal()}",
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.calendar_today),
+                              onPressed: isProcessing
+                                  ? null
+                                  : () async {
+                                      final picked = await showDatePicker(
+                                        context: ctx,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2100),
+                                      );
+                                      if (picked != null) {
+                                        final time = await showTimePicker(
+                                          context: ctx,
+                                          initialTime: TimeOfDay.now(),
+                                        );
+                                        if (time != null) {
+                                          setState(() {
+                                            selectedDate = DateTime(
+                                              picked.year,
+                                              picked.month,
+                                              picked.day,
+                                              time.hour,
+                                              time.minute,
+                                            );
+                                          });
+                                        }
+                                      }
+                                    },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed:
+                            isProcessing ? null : () => Navigator.pop(ctx),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        onPressed: isProcessing
+                            ? null
+                            : () {
+                                final title = titleController.text.trim();
+                                if (title.isEmpty || selectedDate == null)
+                                  return;
+
+                                context.read<CampaignBloc>().add(
+                                      AddSessionRequested(campaignId, {
+                                        "title": title,
+                                        "description":
+                                            descriptionController.text.trim(),
+                                        "date": selectedDate!.toIso8601String(),
+                                      }),
+                                    );
+                              },
+                        child: isProcessing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2))
+                            : const Text("Add"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -271,134 +395,6 @@ class _CampaignScreenState extends State<CampaignScreen> {
                         : const Text("Add"),
                   ),
                 ],
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _showAddSessionDialog(
-      BuildContext context, String campaignId) async {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-    DateTime? selectedDate;
-
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return BlocListener<CampaignBloc, CampaignState>(
-          listenWhen: (prev, curr) =>
-              curr is CampaignLoaded && curr.successMessage != null,
-          listener: (ctx, state) {
-            if (state is CampaignLoaded && state.successMessage != null) {
-              Navigator.pop(ctx); // ✅ auto-close on success
-            }
-          },
-          child: StatefulBuilder(
-            builder: (ctx, setState) {
-              return BlocBuilder<CampaignBloc, CampaignState>(
-                builder: (ctx, state) {
-                  final isProcessing =
-                      state is CampaignLoaded ? state.isProcessing : false;
-
-                  return AlertDialog(
-                    title: const Text("Add Session"),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: titleController,
-                          decoration: const InputDecoration(labelText: "Title"),
-                        ),
-                        TextField(
-                          controller: descriptionController,
-                          decoration:
-                              const InputDecoration(labelText: "Description"),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                selectedDate == null
-                                    ? "No date selected"
-                                    : "Date: ${selectedDate?.toLocal()}",
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.calendar_today),
-                              onPressed: isProcessing
-                                  ? null
-                                  : () async {
-                                      final picked = await showDatePicker(
-                                        context: ctx,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime.now(),
-                                        lastDate: DateTime(2100),
-                                      );
-                                      if (picked != null) {
-                                        final time = await showTimePicker(
-                                          context: ctx,
-                                          initialTime: TimeOfDay.now(),
-                                        );
-                                        if (time != null) {
-                                          setState(() {
-                                            selectedDate = DateTime(
-                                              picked.year,
-                                              picked.month,
-                                              picked.day,
-                                              time.hour,
-                                              time.minute,
-                                            );
-                                          });
-                                        }
-                                      }
-                                    },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed:
-                            isProcessing ? null : () => Navigator.pop(ctx),
-                        child: const Text("Cancel"),
-                      ),
-                      ElevatedButton(
-                        onPressed: isProcessing
-                            ? null
-                            : () {
-                                final title = titleController.text.trim();
-                                if (title.isEmpty || selectedDate == null)
-                                  return;
-
-                                final newSession = {
-                                  "title": title,
-                                  "description":
-                                      descriptionController.text.trim(),
-                                  "date": selectedDate!.toIso8601String(),
-                                };
-
-                                context.read<CampaignBloc>().add(
-                                    AddSessionRequested(
-                                        campaignId, newSession));
-                              },
-                        child: isProcessing
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text("Add"),
-                      ),
-                    ],
-                  );
-                },
               );
             },
           ),

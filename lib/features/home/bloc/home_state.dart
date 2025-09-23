@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-import '../../../models/campaign.dart';
+part of 'home_bloc.dart';
 
 abstract class HomeState extends Equatable {
   const HomeState();
@@ -9,18 +7,38 @@ abstract class HomeState extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Initial state before anything happens
-class HomeInitial extends HomeState {}
-
-/// When campaigns are being loaded
 class HomeLoading extends HomeState {}
 
-/// When user is not authenticated
-class HomeNotAuthenticated extends HomeState {}
+/// Extended campaign with live metadata
+class CampaignWithMeta extends Equatable {
+  final Campaign campaign;
+  final String hostName;
+  final int playerCount;
 
-/// When campaigns successfully loaded
+  const CampaignWithMeta({
+    required this.campaign,
+    required this.hostName,
+    required this.playerCount,
+  });
+
+  CampaignWithMeta copyWith({
+    Campaign? campaign,
+    String? hostName,
+    int? playerCount,
+  }) {
+    return CampaignWithMeta(
+      campaign: campaign ?? this.campaign,
+      hostName: hostName ?? this.hostName,
+      playerCount: playerCount ?? this.playerCount,
+    );
+  }
+
+  @override
+  List<Object?> get props => [campaign, hostName, playerCount];
+}
+
 class HomeLoaded extends HomeState {
-  final List<Campaign> campaigns;
+  final List<CampaignWithMeta> campaigns;
 
   const HomeLoaded({required this.campaigns});
 
@@ -28,7 +46,6 @@ class HomeLoaded extends HomeState {
   List<Object?> get props => [campaigns];
 }
 
-/// When something goes wrong
 class HomeFailure extends HomeState {
   final String message;
 

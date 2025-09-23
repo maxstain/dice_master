@@ -1,146 +1,180 @@
-import 'package:dice_master/features/character/create_character_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/campaign.dart';
 import '../../../models/character.dart';
-import '../../auth/bloc/auth_bloc.dart';
-import '../../auth/bloc/auth_state.dart';
 import '../bloc/campaign_bloc.dart';
 import '../bloc/campaign_event.dart';
 
 class SessionsList extends StatelessWidget {
   final Campaign campaign;
-  final List<Character> players;
   final bool isDungeonMaster;
+  final List<Character> players;
 
   const SessionsList({
     super.key,
     required this.campaign,
-    required this.players,
     required this.isDungeonMaster,
+    required this.players,
   });
-
-  void _createSession(BuildContext context) {
-    final newSession = {
-      "id": DateTime.now().millisecondsSinceEpoch.toString(),
-      "title": "Session ${campaign.sessions.length + 1}",
-      "createdAt": DateTime.now().toIso8601String(),
-      "participants": [],
-    };
-
-    context
-        .read<CampaignBloc>()
-        .add(AddSessionRequested(campaign.id, newSession));
-  }
-
-  void _joinSession(BuildContext context, String sessionId) async {
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated) {
-      final userId = authState.user.uid;
-
-      context
-          .read<CampaignBloc>()
-          .add(JoinSessionRequested(campaign.id, sessionId, userId));
-
-      // Navigate to character creation
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => CreateCharacterScreen(
-            campaignId: campaign.id,
-            userId: userId,
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("You must be signed in to join a session")),
-      );
-    }
-  }
-
-  Widget _buildParticipants(List<dynamic> ids) {
-    if (ids.isEmpty) return const Text("No participants yet");
-
-    final participantTiles = ids.map((id) {
-      final character = players.firstWhere(
-        (p) => p.id == id,
-        orElse: () => Character(
-          id: id,
-          name: "Unknown",
-          role: "unknown",
-          race: "unknown",
-          level: 0,
-          hp: 0,
-          maxHp: 0,
-          imageUrl: "",
-        ),
-      );
-      return ListTile(
-        leading: character.imageUrl.isNotEmpty
-            ? CircleAvatar(backgroundImage: NetworkImage(character.imageUrl))
-            : const CircleAvatar(child: Icon(Icons.person)),
-        title: Text(character.name),
-        subtitle: Text(
-            "${character.role} • ${character.race} (Lvl ${character.level})"),
-        trailing: Text("${character.hp}/${character.maxHp} HP"),
-      );
-    }).toList();
-
-    return Column(children: participantTiles);
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Sessions",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        if (campaign.sessions.isEmpty) const Text("No sessions yet"),
-        if (campaign.sessions.isNotEmpty)
-          ...campaign.sessions.map((s) {
-            final sessionId = s['id'] ?? 'unknown';
-            final title = s['title'] ?? 'Unnamed Session';
-            final participantIds = (s['participants'] as List<dynamic>? ?? []);
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('campaigns')
+          .doc(campaign.id)
+          .collection('sessions')
+          .orderBy('date')
+          .snapshots(),
+      builder: (ctx, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Text("No sessions yet");
+        }
 
-            return ExpansionTile(
-              title: Text(title),
-              subtitle: Text("${participantIds.length} participants"),
-              trailing: isDungeonMaster
-                  ? IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        // TODO: implement DeleteSessionRequested
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Delete session not implemented")),
-                        );
-                      },
-                    )
-                  : ElevatedButton(
-                      onPressed: () => _joinSession(context, sessionId),
-                      child: const Text("Join"),
-                    ),
-              children: [
-                _buildParticipants(participantIds),
-              ],
-            );
-          }),
-        if (isDungeonMaster)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: ElevatedButton.icon(
-              onPressed: () => _createSession(context),
-              icon: const Icon(Icons.add),
-              label: const Text("Create Session"),
+        final sessions = snapshot.data!.docs;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Upcoming Sessions",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 8),
+            ...sessions.map((doc) {
+              final session = doc.data() as Map<String, dynamic>;
+              final sessionId = doc.id;
+              final title = session["title"] ?? "Untitled Session";
+              final description = session["description"] ?? "";
+              final date = session["date"] ?? "";
+
+              return Card(
+                color: const Color(0xFF1E1E2C),
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          if (isDungeonMaster) ...[
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.grey),
+                              onPressed: () {
+                                _showEditSessionDialog(
+                                  context,
+                                  campaign.id,
+                                  sessionId,
+                                  session,
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.redAccent),
+                              onPressed: () {
+                                context.read<CampaignBloc>().add(
+                                      DeleteSessionRequested(
+                                          campaign.id, sessionId),
+                                    );
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 14),
+                      ),
+                      if (date.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            date,
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditSessionDialog(
+    BuildContext context,
+    String campaignId,
+    String sessionId,
+    Map<String, dynamic> session,
+  ) {
+    final titleController = TextEditingController(text: session["title"]);
+    final descriptionController =
+        TextEditingController(text: session["description"]);
+    final dateController = TextEditingController(text: session["date"]);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Edit Session"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: "Title")),
+            TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(labelText: "Description")),
+            TextField(
+                controller: dateController,
+                decoration: const InputDecoration(labelText: "Date")),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              context.read<CampaignBloc>().add(
+                    UpdateSessionRequested(campaignId, sessionId, {
+                      "title": titleController.text.trim(),
+                      "description": descriptionController.text.trim(),
+                      "date": dateController.text.trim(),
+                    }),
+                  );
+              Navigator.pop(ctx);
+            },
+            child: const Text("Save"),
           ),
-      ],
+        ],
+      ),
     );
   }
 }

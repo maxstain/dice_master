@@ -15,7 +15,7 @@ class CampaignLoading extends CampaignState {}
 class CampaignLoaded extends CampaignState {
   final Campaign campaign;
   final List<Character> players;
-  final List<Map<String, dynamic>> notes;
+  final List<Map<String, dynamic>> notes; // notes subcollection
   final bool isDungeonMaster;
 
   final bool isProcessing;
@@ -49,8 +49,8 @@ class CampaignLoaded extends CampaignState {
       isDungeonMaster: isDungeonMaster ?? this.isDungeonMaster,
       isProcessing: isProcessing ?? this.isProcessing,
       successMessage:
-          clearMessages ? null : successMessage ?? this.successMessage,
-      errorMessage: clearMessages ? null : errorMessage ?? this.errorMessage,
+          clearMessages ? null : (successMessage ?? this.successMessage),
+      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
@@ -62,7 +62,7 @@ class CampaignLoaded extends CampaignState {
         isDungeonMaster,
         isProcessing,
         successMessage,
-        errorMessage,
+        errorMessage
       ];
 }
 

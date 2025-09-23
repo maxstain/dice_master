@@ -1,164 +1,123 @@
 import 'dart:async';
 
+import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 import '../../../models/campaign.dart';
-import 'home_event.dart';
-import 'home_state.dart';
+
+part 'home_event.dart';
+part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final FirebaseAuth _firebaseAuth;
-  final FirebaseFirestore _firestore;
-  StreamSubscription<User?>? _authSub;
+  StreamSubscription<QuerySnapshot>? _campaignsSub;
+  final Map<String, StreamSubscription<QuerySnapshot>> _playersSubs = {};
+  final Map<String, StreamSubscription<DocumentSnapshot>> _hostSubs = {};
 
-  HomeBloc({
-    FirebaseAuth? firebaseAuth,
-    FirebaseFirestore? firestore,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance,
-        super(HomeInitial()) {
-    on<TriggerInitialLoad>(_onTriggerInitialLoadHandler);
-    on<HomeStarted>(_onHomeStartedHandler);
-    on<CreateCampaignRequested>(_onCreateCampaignRequestedHandler);
-    on<JoinCampaignRequested>(_onJoinCampaignRequestedHandler);
-    on<LeaveCampaignRequested>(_onLeaveCampaignRequestedHandler);
-    on<HomeUserChanged>(_onUserChangedHandler);
-
-    // 🔑 Listen to Firebase auth changes
-    _authSub = _firebaseAuth.authStateChanges().listen((user) {
-      add(HomeUserChanged(user));
+  HomeBloc() : super(HomeLoading()) {
+    on<HomeTriggerInitialLoad>(_onTriggerInitialLoad);
+    on<_CampaignsUpdated>(_onCampaignsUpdated);
+    on<_CampaignMetaUpdated>(_onCampaignMetaUpdated);
+    on<HomeRefreshRequested>(_onRefreshRequested);
+    on<_CampaignsUpdatedError>((event, emit) {
+      emit(HomeFailure(event.message));
     });
   }
 
-  // Clean up subscription
-  @override
-  Future<void> close() {
-    _authSub?.cancel();
-    return super.close();
-  }
-
-  Future<void> _onTriggerInitialLoadHandler(
-      TriggerInitialLoad event, Emitter<HomeState> emit) async {
-    await _loadCampaigns(emit, isRefresh: false);
-  }
-
-  Future<void> _onHomeStartedHandler(
-      HomeStarted event, Emitter<HomeState> emit) async {
-    await _loadCampaigns(emit, isRefresh: true);
-  }
-
-  void _onUserChangedHandler(
-      HomeUserChanged event, Emitter<HomeState> emit) async {
-    if (event.user == null) {
-      emit(HomeNotAuthenticated());
-    } else {
-      add(const TriggerInitialLoad());
-    }
-  }
-
-  Future<void> _loadCampaigns(Emitter<HomeState> emit,
-      {required bool isRefresh}) async {
-    final currentUser = _firebaseAuth.currentUser;
-    if (currentUser == null) {
-      emit(HomeNotAuthenticated());
-      return;
-    }
-
+  Future<void> _onTriggerInitialLoad(
+      HomeTriggerInitialLoad event, Emitter<HomeState> emit) async {
     emit(HomeLoading());
 
-    try {
-      final snap = await _firestore
-          .collection('campaigns')
-          .where('players', arrayContains: currentUser.uid)
-          .get();
-
-      // 🔑 Use fromDoc to convert Firestore document to Campaign model
-      final campaigns = snap.docs
-          .map((doc) =>
-              Campaign.fromDoc(doc)) // 🔑 use fromDoc instead of fromJson
-          .toList();
-
-      emit(HomeLoaded(campaigns: campaigns as List<Campaign>));
-    } catch (e, st) {
-      print("HomeBloc: Firestore error $e\n$st");
-      emit(HomeFailure(e.toString()));
+    await _campaignsSub?.cancel();
+    for (var sub in _playersSubs.values) {
+      await sub.cancel();
     }
+    _playersSubs.clear();
+    for (var sub in _hostSubs.values) {
+      await sub.cancel();
+    }
+    _hostSubs.clear();
+
+    _campaignsSub = FirebaseFirestore.instance
+        .collection('campaigns')
+        .snapshots()
+        .listen((qs) {
+      final campaigns = qs.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Campaign.fromJson({...data, 'id': doc.id});
+      }).toList();
+
+      add(_CampaignsUpdated(campaigns));
+    }, onError: (error) {
+      add(_CampaignsUpdatedError("Firestore stream error: $error"));
+    });
   }
 
-  Future<void> _onCreateCampaignRequestedHandler(
-      CreateCampaignRequested event, Emitter<HomeState> emit) async {
-    final currentUser = _firebaseAuth.currentUser;
-    if (currentUser == null) {
-      emit(HomeNotAuthenticated());
-      return;
-    }
+  Future<void> _onCampaignsUpdated(
+      _CampaignsUpdated event, Emitter<HomeState> emit) async {
+    final List<CampaignWithMeta> base = event.campaigns
+        .map((c) => CampaignWithMeta(
+              campaign: c,
+              hostName: c.hostId,
+              playerCount: 0,
+            ))
+        .toList();
 
-    try {
-      final doc = _firestore.collection('campaigns').doc();
-      final campaign = Campaign(
-        id: doc.id,
-        title: event.title,
-        hostId: currentUser.uid,
-        players: [],
-        sessions: [],
-        sessionCode: doc.id.substring(0, 6).toUpperCase(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+    emit(HomeLoaded(campaigns: base));
 
-      await doc.set(campaign.toJson());
-      add(const TriggerInitialLoad());
-    } catch (e) {
-      emit(HomeFailure("Failed to create campaign: $e"));
-    }
-  }
-
-  Future<void> _onJoinCampaignRequestedHandler(
-      JoinCampaignRequested event, Emitter<HomeState> emit) async {
-    final currentUser = _firebaseAuth.currentUser;
-    if (currentUser == null) {
-      emit(HomeNotAuthenticated());
-      return;
-    }
-
-    try {
-      final query = await _firestore
-          .collection('campaigns')
-          .where('sessionCode', isEqualTo: event.sessionCode)
-          .get();
-
-      if (query.docs.isNotEmpty) {
-        final doc = query.docs.first.reference;
-        await doc.update({
-          'players': FieldValue.arrayUnion([currentUser.uid])
-        });
-        add(const TriggerInitialLoad());
-      } else {
-        emit(const HomeFailure("Invalid session code"));
-      }
-    } catch (e) {
-      emit(HomeFailure("Failed to join campaign: $e"));
-    }
-  }
-
-  Future<void> _onLeaveCampaignRequestedHandler(
-      LeaveCampaignRequested event, Emitter<HomeState> emit) async {
-    final currentUser = _firebaseAuth.currentUser;
-    if (currentUser == null) {
-      emit(HomeNotAuthenticated());
-      return;
-    }
-
-    try {
-      final doc = _firestore.collection('campaigns').doc(event.campaignId);
-      await doc.update({
-        'players': FieldValue.arrayRemove([currentUser.uid])
+    for (final c in event.campaigns) {
+      _hostSubs[c.id]?.cancel();
+      _hostSubs[c.id] = FirebaseFirestore.instance
+          .collection('users')
+          .doc(c.hostId)
+          .snapshots()
+          .listen((doc) {
+        final username = (doc.data() ?? {})['username'] ?? c.hostId;
+        add(_CampaignMetaUpdated(campaignId: c.id, hostName: username));
       });
-      add(const TriggerInitialLoad());
-    } catch (e) {
-      emit(HomeFailure("Failed to leave campaign: $e"));
+
+      _playersSubs[c.id]?.cancel();
+      _playersSubs[c.id] = FirebaseFirestore.instance
+          .collection('campaigns')
+          .doc(c.id)
+          .collection('players')
+          .snapshots()
+          .listen((qs) {
+        add(_CampaignMetaUpdated(campaignId: c.id, playerCount: qs.size));
+      });
     }
+  }
+
+  Future<void> _onCampaignMetaUpdated(
+      _CampaignMetaUpdated event, Emitter<HomeState> emit) async {
+    if (state is! HomeLoaded) return;
+
+    final current = (state as HomeLoaded).campaigns;
+    final updated = current.map((cwm) {
+      if (cwm.campaign.id != event.campaignId) return cwm;
+      return cwm.copyWith(
+        hostName: event.hostName ?? cwm.hostName,
+        playerCount: event.playerCount ?? cwm.playerCount,
+      );
+    }).toList();
+
+    emit(HomeLoaded(campaigns: updated));
+  }
+
+  Future<void> _onRefreshRequested(
+      HomeRefreshRequested event, Emitter<HomeState> emit) async {
+    add(const HomeTriggerInitialLoad());
+  }
+
+  @override
+  Future<void> close() {
+    _campaignsSub?.cancel();
+    for (var sub in _playersSubs.values) {
+      sub.cancel();
+    }
+    for (var sub in _hostSubs.values) {
+      sub.cancel();
+    }
+    return super.close();
   }
 }
