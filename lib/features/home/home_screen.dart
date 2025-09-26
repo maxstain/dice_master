@@ -19,6 +19,16 @@ class HomeScreen extends StatelessWidget {
               duration: const Duration(seconds: 3),
             ),
           );
+        } else if (state is HomeFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.redAccent,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } else if (state is HomeLoading) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
         }
       },
       builder: (context, state) {

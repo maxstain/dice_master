@@ -25,18 +25,12 @@ class Campaign {
 
   factory Campaign.fromJson(Map<String, dynamic> json) {
     return Campaign(
-      id: json['id'] as String? ?? 'DEFAULT_ID',
-      title: json['title'] as String? ?? 'Untitled Campaign',
-      hostId: json['hostId'] as String? ?? 'DEFAULT_HOST_ID',
-      players: [],
-      // loaded separately
-      sessions: (json['sessions'] as List<dynamic>?)
-              ?.map((session) => session as Map<String, dynamic>)
-              .toList() ??
-          [],
-      sessionCode: json['sessionCode'] as String? ?? 'NO_CODE',
-      createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (json['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      id: json['id'] as String,
+      title: json['title'] as String,
+      hostId: json['hostId'] as String,
+      sessionCode: json['sessionCode'] as String,
+      createdAt: (json['createdAt'] as Timestamp?)!.toDate(),
+      updatedAt: (json['updatedAt'] as Timestamp?)!.toDate(),
     );
   }
 
@@ -84,23 +78,5 @@ class Campaign {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
-  }
-
-  static fromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data();
-    return Campaign(
-      id: doc.id,
-      title: data['title'] as String? ?? 'Untitled Campaign',
-      hostId: data['hostId'] as String? ?? 'DEFAULT_HOST_ID',
-      players: [],
-      // loaded separately
-      sessions: (data['sessions'] as List<dynamic>?)
-              ?.map((session) => session as Map<String, dynamic>)
-              .toList() ??
-          [],
-      sessionCode: data['sessionCode'] as String? ?? 'NO_CODE',
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-    );
   }
 }

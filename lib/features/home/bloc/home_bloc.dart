@@ -52,11 +52,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         .snapshots()
         .listen((qs) {
       final campaigns = qs.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Campaign.fromJson({...data, 'id': doc.id});
+        final data = doc.data();
+        final campaign = Campaign.fromJson({...data, 'id': doc.id});
+        return CampaignWithMeta(
+            campaign: campaign,
+            hostName: campaign.hostId,
+            playerCount: campaign.players.length);
       }).toList();
 
-      add(_CampaignsUpdated(campaigns));
+      if (!emit.isDone) {
+        emit(HomeLoaded(campaigns: campaigns));
+      }
     }, onError: (error) {
       add(_CampaignsUpdatedError("Firestore stream error: $error"));
     });
