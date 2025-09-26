@@ -24,7 +24,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
     on<_CampaignWarning>((event, emit) {
       if (state is HomeLoaded) {
-        // Keep campaigns list but expose a warning
         emit(HomeLoaded(
           campaigns: (state as HomeLoaded).campaigns,
           warning: event.message,
@@ -36,7 +35,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _onTriggerInitialLoad(
       HomeTriggerInitialLoad event, Emitter<HomeState> emit) async {
     emit(HomeLoading());
-
     await _campaignsSub?.cancel();
     for (var sub in _playersSubs.values) {
       await sub.cancel();
@@ -46,22 +44,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       await sub.cancel();
     }
     _hostSubs.clear();
-
     _campaignsSub = FirebaseFirestore.instance
         .collection('campaigns')
         .snapshots()
         .listen((qs) {
-      final campaigns = qs.docs.map((doc) {
-        final data = doc.data();
-        final campaign = Campaign.fromJson({...data, 'id': doc.id});
-        return CampaignWithMeta(
-            campaign: campaign,
-            hostName: campaign.hostId,
-            playerCount: campaign.players.length);
-      }).toList();
-
-      if (!emit.isDone) {
-        emit(HomeLoaded(campaigns: campaigns));
+      try {
+        final campaigns = qs.docs.map((doc) {
+          final data = doc.data();
+          final campaign = Campaign.fromJson({...data, 'id': doc.id});
+          return campaign;
+        }).toList();
+        add(_CampaignsUpdated(campaigns));
+      } catch (e) {
+        add(_CampaignsUpdatedError("Firestore stream error: $e"));
       }
     }, onError: (error) {
       add(_CampaignsUpdatedError("Firestore stream error: $error"));
@@ -70,6 +65,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _onCampaignsUpdated(
       _CampaignsUpdated event, Emitter<HomeState> emit) async {
+    // campaigns from Firestore (no players loaded yet)
     final List<CampaignWithMeta> base = event.campaigns
         .map((c) => CampaignWithMeta(
               campaign: c,
@@ -77,9 +73,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               playerCount: 0,
             ))
         .toList();
-
-    emit(HomeLoaded(campaigns: base));
-
+    emit(HomeLoaded(campaigns: base)); // subscribe to players + host updates
     for (final c in event.campaigns) {
       _hostSubs[c.id]?.cancel();
       _hostSubs[c.id] = FirebaseFirestore.instance
@@ -92,7 +86,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }, onError: (e) {
         add(_CampaignWarning("Failed to load host for ${c.title}: $e"));
       });
-
       _playersSubs[c.id]?.cancel();
       _playersSubs[c.id] = FirebaseFirestore.instance
           .collection('campaigns')
@@ -110,7 +103,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _onCampaignMetaUpdated(
       _CampaignMetaUpdated event, Emitter<HomeState> emit) async {
     if (state is! HomeLoaded) return;
-
     final current = (state as HomeLoaded).campaigns;
     final updated = current.map((cwm) {
       if (cwm.campaign.id != event.campaignId) return cwm;
@@ -119,7 +111,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         playerCount: event.playerCount ?? cwm.playerCount,
       );
     }).toList();
-
     emit(HomeLoaded(campaigns: updated));
   }
 
