@@ -36,7 +36,8 @@ class DiceMasterApp extends StatelessWidget {
           create: (context) => SplashBloc(),
         ),
         BlocProvider(create: (_) => AuthBloc()),
-        BlocProvider(create: (_) => HomeBloc()),
+        BlocProvider(
+            create: (_) => HomeBloc()..add(const HomeTriggerInitialLoad())),
         BlocProvider(create: (_) => CampaignBloc())
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
