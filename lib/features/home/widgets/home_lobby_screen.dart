@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../campaign/campaign_screen.dart';
 import '../bloc/home_bloc.dart';
 
 class HomeLobbyScreen extends StatelessWidget {
@@ -72,10 +73,12 @@ class HomeLobbyScreen extends StatelessWidget {
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.pushNamed(
+                        Navigator.push(
                           context,
-                          "/campaign",
-                          arguments: c.campaign.id,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CampaignScreen(campaignId: c.campaign.id),
+                          ),
                         );
                       },
                     ),
