@@ -35,6 +35,10 @@ class CampaignWithMeta extends Equatable {
 
   @override
   List<Object?> get props => [campaign, hostName, playerCount];
+
+  get hostNameStream => null;
+
+  get playerCountStream => null;
 }
 
 class HomeLoaded extends HomeState {
