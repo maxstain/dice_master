@@ -1,4 +1,3 @@
-import 'package:dice_master/features/campaign/campaign_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -13,13 +12,28 @@ class HomeLobbyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Campaign Lobby")),
+      appBar: AppBar(
+        title: const Text(
+          "Campaign Lobby",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<HomeBloc>().add(const HomeRefreshRequested());
         },
         child: campaigns.isEmpty
-            ? const Center(child: Text("No campaigns yet"))
+            ? const Center(
+                child: Text(
+                  "No campaigns yet",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
             : ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: campaigns.length,
@@ -58,12 +72,10 @@ class HomeLobbyScreen extends StatelessWidget {
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                CampaignScreen(campaignId: c.campaign.id),
-                          ),
+                          "/campaign",
+                          arguments: c.campaign.id,
                         );
                       },
                     ),

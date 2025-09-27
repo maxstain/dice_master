@@ -22,6 +22,7 @@ dependencies:
   connectivity_plus: ^6.1.5
   rename_app: ^1.6.5
   shimmer: ^3.0.0
+  bloc: ^9.0.1
 
 dev_dependencies:
   flutter_test:
