@@ -9,65 +9,19 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeBloc, HomeState>(
-      listener: (context, state) {
-        if (state is HomeLoaded && state.warning != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.warning!),
-              backgroundColor: Colors.orangeAccent,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        } else if (state is HomeFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.redAccent,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        } else if (state is HomeLoading) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        }
-      },
+    return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
           return const HomeSkeletonScreen();
         } else if (state is HomeFailure) {
           return Scaffold(
             appBar: AppBar(title: const Text("Campaign Lobby")),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Error: ${state.message}",
-                    textAlign: TextAlign.center,
-                    style:
-                        const TextStyle(color: Colors.redAccent, fontSize: 16),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context
-                          .read<HomeBloc>()
-                          .add(const HomeTriggerInitialLoad());
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text("Retry"),
-                  ),
-                ],
-              ),
-            ),
+            body: Center(child: Text("Error: ${state.message}")),
           );
         } else if (state is HomeLoaded) {
           return const HomeLobbyScreen();
-        } else {
-          return const Scaffold(
-            body: Center(child: Text("Unknown state")),
-          );
         }
+        return const SizedBox.shrink();
       },
     );
   }
