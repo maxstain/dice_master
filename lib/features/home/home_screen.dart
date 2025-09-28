@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         } else if (state is HomeLoaded) {
-          return HomeLobbyScreen(campaigns: state.campaigns);
+          return const HomeLobbyScreen();
         } else {
           return const Scaffold(
             body: Center(child: Text("Unknown state")),
