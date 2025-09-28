@@ -1,7 +1,7 @@
+import 'package:dice_master/models/campaignWithMeta.dart';
 import 'package:flutter/material.dart';
 
 import '../../campaign/campaign_screen.dart';
-import '../bloc/home_bloc.dart';
 
 class HomeLobbyScreen extends StatelessWidget {
   final List<CampaignWithMeta> campaigns;

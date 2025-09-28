@@ -7,38 +7,8 @@ abstract class HomeState extends Equatable {
   List<Object?> get props => [];
 }
 
-class HomeLoading extends HomeState {}
-
-/// Extended campaign with live metadata
-class CampaignWithMeta extends Equatable {
-  final Campaign campaign;
-  final String hostName;
-  final int playerCount;
-
-  const CampaignWithMeta({
-    required this.campaign,
-    required this.hostName,
-    required this.playerCount,
-  });
-
-  CampaignWithMeta copyWith({
-    Campaign? campaign,
-    String? hostName,
-    int? playerCount,
-  }) {
-    return CampaignWithMeta(
-      campaign: campaign ?? this.campaign,
-      hostName: hostName ?? this.hostName,
-      playerCount: playerCount ?? this.playerCount,
-    );
-  }
-
-  @override
-  List<Object?> get props => [campaign, hostName, playerCount];
-
-  get hostNameStream => null;
-
-  get playerCountStream => null;
+class HomeLoading extends HomeState {
+  const HomeLoading();
 }
 
 class HomeLoaded extends HomeState {
@@ -48,7 +18,7 @@ class HomeLoaded extends HomeState {
   const HomeLoaded({required this.campaigns, this.warning});
 
   @override
-  List<Object?> get props => [campaigns, warning ?? ''];
+  List<Object?> get props => [campaigns, warning];
 }
 
 class HomeFailure extends HomeState {

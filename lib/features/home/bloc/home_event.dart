@@ -24,21 +24,6 @@ class _CampaignsUpdated extends HomeEvent {
   List<Object?> get props => [campaigns];
 }
 
-class _CampaignMetaUpdated extends HomeEvent {
-  final String campaignId;
-  final String? hostName;
-  final int? playerCount;
-
-  const _CampaignMetaUpdated({
-    required this.campaignId,
-    this.hostName,
-    this.playerCount,
-  });
-
-  @override
-  List<Object?> get props => [campaignId, hostName, playerCount];
-}
-
 class _CampaignsUpdatedError extends HomeEvent {
   final String message;
 
