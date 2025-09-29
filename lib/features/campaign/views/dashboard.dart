@@ -38,12 +38,6 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final upcomingSessions = campaign.sessions.map((ms) {
-      final session = Session.fromJson(ms);
-      if (session.dateTime.isBefore(DateTime.now())) return null;
-      return session;
-    });
-
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -81,14 +75,33 @@ class DashboardView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            if (upcomingSessions.isEmpty)
-              const Text("No upcoming sessions yet")
-            else
-              Column(
-                children: upcomingSessions.map((session) {
-                  return SessionCard(session: session!);
-                }).toList(),
-              ),
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('campaigns')
+                  .doc(campaign.id)
+                  .collection('sessions')
+                  .orderBy('date', descending: true)
+                  .where('date',
+                      isGreaterThanOrEqualTo: DateTime.now().toIso8601String())
+                  .snapshots(),
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Text("No sessions yet");
+                }
+                final sessions = snapshot.data!.docs;
+                return SingleChildScrollView(
+                  child: Column(
+                      children: sessions.map((doc) {
+                    final session =
+                        Session.fromJson(doc.data() as Map<String, dynamic>);
+                    return SessionCard(session: session);
+                  }).toList()),
+                );
+              },
+            ),
 
             const SizedBox(height: 24),
 

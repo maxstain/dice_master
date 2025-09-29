@@ -15,6 +15,7 @@ class _SessionCardState extends State<SessionCard> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.grey.shade900,
         borderRadius: BorderRadius.circular(12),

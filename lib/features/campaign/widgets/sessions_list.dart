@@ -26,7 +26,7 @@ class SessionsList extends StatelessWidget {
           .collection('campaigns')
           .doc(campaign.id)
           .collection('sessions')
-          .orderBy('date')
+          .orderBy('date', descending: true)
           .snapshots(),
       builder: (ctx, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -54,158 +54,98 @@ class SessionsList extends StatelessWidget {
               final date = session["date"] ?? "";
               final isExpired = DateTime.parse(date).isBefore(DateTime.now());
 
-              return !isExpired
-                  ? Card(
-                      color: const Color(0xFF1E1E2C),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                if (isDungeonMaster) ...[
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.grey),
-                                    onPressed: () {
-                                      _showEditSessionDialog(
-                                        context,
-                                        campaign.id,
-                                        sessionId,
-                                        session,
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.redAccent),
-                                    onPressed: () {
-                                      context.read<CampaignBloc>().add(
-                                            DeleteSessionRequested(
-                                                campaign.id, sessionId),
-                                          );
-                                    },
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              description,
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 14),
-                            ),
-                            if (date.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  date,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
+              return Card(
+                color: isExpired
+                    ? const Color(0xFF3A3A3E)
+                    : const Color(0xFF1E1E2C),
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: isExpired ? Colors.grey : Colors.white,
+                                decoration: isExpired
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                                decorationColor:
+                                    isExpired ? Colors.grey : Colors.white,
+                                decorationThickness: 2,
                               ),
+                            ),
+                          ),
+                          if (isDungeonMaster) ...[
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.grey),
+                              onPressed: () {
+                                _showEditSessionDialog(
+                                  context,
+                                  campaign.id,
+                                  sessionId,
+                                  session,
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.redAccent),
+                              onPressed: () {
+                                context.read<CampaignBloc>().add(
+                                      DeleteSessionRequested(
+                                          campaign.id, sessionId),
+                                    );
+                              },
+                            ),
                           ],
-                        ),
+                        ],
                       ),
-                    )
-                  : Card(
-                      color: const Color(0xFF3A3A3E),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 14),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    alignment: Alignment.centerRight,
-                                    child: const Text(
-                                      "Expired",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (isDungeonMaster) ...[
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.grey),
-                                    onPressed: () {
-                                      _showEditSessionDialog(
-                                        context,
-                                        campaign.id,
-                                        sessionId,
-                                        session,
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.redAccent),
-                                    onPressed: () {
-                                      context.read<CampaignBloc>().add(
-                                            DeleteSessionRequested(
-                                                campaign.id, sessionId),
-                                          );
-                                    },
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              description,
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 14),
-                            ),
-                            if (date.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  date,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
+                      if (date.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                "${date.split('T').first.split('-').reversed.join('/')} - ${date.split('T').last.split('.')[0].split(':').first}:${date.split('T').last.split('.')[0].split(':').last}",
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.grey),
                               ),
-                          ],
+                              const Spacer(),
+                              if (isExpired)
+                                Chip(
+                                  label: Text(
+                                    "Passed",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.red.shade400,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
+                    ],
+                  ),
+                ),
+              );
             }),
           ],
         );
