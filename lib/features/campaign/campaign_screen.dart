@@ -1,3 +1,4 @@
+import 'package:dice_master/features/campaign/views/dice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -168,6 +169,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
           return "Campaign";
         case 3:
           return "Sessions";
+        case 4:
+          return "Dice Roller";
       }
     }
     return "Campaign";
@@ -250,6 +253,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
               notes: const [],
             ),
             SessionsView(campaign: campaign, players: players, isDm: isDm),
+            const DiceRollerView(),
           ];
 
           return Stack(
@@ -260,7 +264,10 @@ class _CampaignScreenState extends State<CampaignScreen> {
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  title: Text(_getAppBarTitle(state)),
+                  title: Text(
+                    _getAppBarTitle(state),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   actions: _getAppBarActions(state),
                 ),
                 body: views[_selectedIndex],
@@ -284,6 +291,10 @@ class _CampaignScreenState extends State<CampaignScreen> {
                     BottomNavigationBarItem(
                       icon: Icon(Icons.event),
                       label: 'Sessions',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.casino_rounded),
+                      label: 'Dice',
                     ),
                   ],
                 ),

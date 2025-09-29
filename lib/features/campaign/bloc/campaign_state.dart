@@ -16,6 +16,7 @@ class CampaignLoaded extends CampaignState {
   final Campaign campaign;
   final List<Character> players;
   final List<Map<String, dynamic>> notes; // notes subcollection
+  final List<Map<String, dynamic>> sessions; // sessions subcollection
   final bool isDungeonMaster;
 
   final bool isProcessing;
@@ -26,6 +27,7 @@ class CampaignLoaded extends CampaignState {
     required this.campaign,
     required this.players,
     required this.notes,
+    required this.sessions,
     required this.isDungeonMaster,
     this.isProcessing = false,
     this.successMessage,
@@ -36,6 +38,7 @@ class CampaignLoaded extends CampaignState {
     Campaign? campaign,
     List<Character>? players,
     List<Map<String, dynamic>>? notes,
+    List<Map<String, dynamic>> sessions = const [],
     bool? isDungeonMaster,
     bool? isProcessing,
     String? successMessage,
@@ -46,6 +49,7 @@ class CampaignLoaded extends CampaignState {
       campaign: campaign ?? this.campaign,
       players: players ?? this.players,
       notes: notes ?? this.notes,
+      sessions: sessions ?? this.sessions,
       isDungeonMaster: isDungeonMaster ?? this.isDungeonMaster,
       isProcessing: isProcessing ?? this.isProcessing,
       successMessage:
@@ -59,6 +63,7 @@ class CampaignLoaded extends CampaignState {
         campaign,
         players,
         notes,
+        sessions,
         isDungeonMaster,
         isProcessing,
         successMessage,

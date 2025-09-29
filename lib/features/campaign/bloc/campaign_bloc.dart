@@ -38,6 +38,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     on<CampaignUpdated>(_onCampaignUpdated);
     on<PlayersUpdated>(_onPlayersUpdated);
     on<NotesUpdated>(_onNotesUpdated);
+    on<SessionsUpdated>(_onSessionsUpdated);
   }
 
   // ===== Core =====
@@ -130,6 +131,17 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       }
     } catch (e) {
       emit(CampaignFailure('Failed to add session: $e'));
+    }
+  }
+
+  Future<void> _onSessionsUpdated(
+      SessionsUpdated event, Emitter<CampaignState> emit) async {
+    try {
+      if (state is CampaignLoaded) {
+        emit((state as CampaignLoaded).copyWith(sessions: event.sessions));
+      }
+    } catch (e) {
+      emit(CampaignFailure('Failed to update sessions: $e'));
     }
   }
 
@@ -267,7 +279,8 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       campaign: event.campaign!,
       players: const [],
       notes: const [],
-      isDungeonMaster: false, // TODO: compute real DM status
+      sessions: const [],
+      isDungeonMaster: event.campaign!.hostId == event.campaign!.hostId,
     ));
   }
 

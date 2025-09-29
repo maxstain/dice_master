@@ -38,9 +38,6 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Contains all upcoming sessions in the campaign that are not in the past
-    // by mapping the sessions array in the campaign to a list of sessions
-    // and filtering out the ones that are in the past
     final upcomingSessions = campaign.sessions.map((ms) {
       final session = Session.fromJson(ms);
       if (session.dateTime.isBefore(DateTime.now())) return null;
