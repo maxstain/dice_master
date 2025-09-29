@@ -42,7 +42,7 @@ class SessionsList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Upcoming Sessions",
+              "All Sessions",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -52,75 +52,160 @@ class SessionsList extends StatelessWidget {
               final title = session["title"] ?? "Untitled Session";
               final description = session["description"] ?? "";
               final date = session["date"] ?? "";
+              final isExpired = DateTime.parse(date).isBefore(DateTime.now());
 
-              return Card(
-                color: const Color(0xFF1E1E2C),
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title,
+              return !isExpired
+                  ? Card(
+                      color: const Color(0xFF1E1E2C),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                if (isDungeonMaster) ...[
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.grey),
+                                    onPressed: () {
+                                      _showEditSessionDialog(
+                                        context,
+                                        campaign.id,
+                                        sessionId,
+                                        session,
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent),
+                                    onPressed: () {
+                                      context.read<CampaignBloc>().add(
+                                            DeleteSessionRequested(
+                                                campaign.id, sessionId),
+                                          );
+                                    },
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              description,
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white,
+                                  color: Colors.white70, fontSize: 14),
+                            ),
+                            if (date.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  date,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
                               ),
-                            ),
-                          ),
-                          if (isDungeonMaster) ...[
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.grey),
-                              onPressed: () {
-                                _showEditSessionDialog(
-                                  context,
-                                  campaign.id,
-                                  sessionId,
-                                  session,
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete,
-                                  color: Colors.redAccent),
-                              onPressed: () {
-                                context.read<CampaignBloc>().add(
-                                      DeleteSessionRequested(
-                                          campaign.id, sessionId),
-                                    );
-                              },
-                            ),
                           ],
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 14),
-                      ),
-                      if (date.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            date,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
-                          ),
                         ),
-                    ],
-                  ),
-                ),
-              );
+                      ),
+                    )
+                  : Card(
+                      color: const Color(0xFF3A3A3E),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    alignment: Alignment.centerRight,
+                                    child: const Text(
+                                      "Expired",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (isDungeonMaster) ...[
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.grey),
+                                    onPressed: () {
+                                      _showEditSessionDialog(
+                                        context,
+                                        campaign.id,
+                                        sessionId,
+                                        session,
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent),
+                                    onPressed: () {
+                                      context.read<CampaignBloc>().add(
+                                            DeleteSessionRequested(
+                                                campaign.id, sessionId),
+                                          );
+                                    },
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              description,
+                              style: const TextStyle(
+                                  color: Colors.white70, fontSize: 14),
+                            ),
+                            if (date.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  date,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
             }),
           ],
         );

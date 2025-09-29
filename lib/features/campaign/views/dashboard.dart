@@ -38,7 +38,14 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final upcomingSessions = campaign.sessions;
+    // Contains all upcoming sessions in the campaign that are not in the past
+    // by mapping the sessions array in the campaign to a list of sessions
+    // and filtering out the ones that are in the past
+    final upcomingSessions = campaign.sessions.map((ms) {
+      final session = Session.fromJson(ms);
+      if (session.dateTime.isBefore(DateTime.now())) return null;
+      return session;
+    });
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -81,9 +88,8 @@ class DashboardView extends StatelessWidget {
               const Text("No upcoming sessions yet")
             else
               Column(
-                children: upcomingSessions.map((s) {
-                  final session = Session.fromJson(s);
-                  return SessionCard(session: session);
+                children: upcomingSessions.map((session) {
+                  return SessionCard(session: session!);
                 }).toList(),
               ),
 

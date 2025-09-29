@@ -12,6 +12,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
   StreamSubscription<DocumentSnapshot>? _campaignSub;
   StreamSubscription<QuerySnapshot>? _playersSub;
   StreamSubscription<QuerySnapshot>? _notesSub;
+  StreamSubscription<QuerySnapshot>? _sessionsSub;
 
   CampaignBloc() : super(CampaignLoading()) {
     on<CampaignStarted>(_onStarted);
@@ -51,6 +52,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     await _campaignSub?.cancel();
     await _playersSub?.cancel();
     await _notesSub?.cancel();
+    await _sessionsSub?.cancel();
 
     _campaignSub = campaignRef.snapshots().listen((snapshot) {
       if (!snapshot.exists) {
@@ -74,6 +76,15 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
             .cast<Map<String, dynamic>>()
             .toList();
         add(NotesUpdated(notes));
+      });
+
+      _sessionsSub =
+          campaignRef.collection('sessions').snapshots().listen((qs) {
+        final sessions = qs.docs
+            .map((doc) => {...doc.data(), 'id': doc.id})
+            .cast<Map<String, dynamic>>()
+            .toList();
+        add(SessionsUpdated(sessions));
       });
     });
   }

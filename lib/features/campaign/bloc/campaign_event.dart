@@ -138,3 +138,12 @@ class NotesUpdated extends CampaignEvent {
   @override
   List<Object?> get props => [notes];
 }
+
+class SessionsUpdated extends CampaignEvent {
+  final List<Map<String, dynamic>> sessions;
+
+  const SessionsUpdated(this.sessions);
+
+  @override
+  List<Object?> get props => [sessions];
+}
