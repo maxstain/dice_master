@@ -40,11 +40,10 @@ class CampaignView extends StatelessWidget {
                 Text("Campaign Notes",
                     style: Theme.of(context).textTheme.bodyMedium),
                 const Spacer(),
-                if (isDm)
-                  IconButton(
-                    icon: const Icon(Icons.add_circle, color: Colors.purple),
-                    onPressed: () => _showAddNoteDialog(context, campaign.id),
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle, color: Colors.purple),
+                  onPressed: () => _showAddNoteDialog(context, campaign.id),
+                ),
               ],
             ),
             const SizedBox(height: 8),
