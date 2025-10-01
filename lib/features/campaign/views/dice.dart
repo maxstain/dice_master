@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class DiceRollerView extends StatefulWidget {
@@ -37,7 +39,7 @@ class _DiceRollerViewState extends State<DiceRollerView>
     final d100Values = List.generate(100, (index) => index + 1);
     int dValue = 0;
     final history = [];
-    var selectedDie = d4Values;
+    var selectedDie = 4;
     const selectedColor = Colors.purple;
 
     return Scaffold(
@@ -92,12 +94,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d4Values;
-                        print(selectedDie.length);
+                        selectedDie = d4Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d4Values.length
+                      backgroundColor: selectedDie == d4Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -110,12 +112,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d6Values;
-                        print(selectedDie.length);
+                        selectedDie = d6Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d6Values.length
+                      backgroundColor: selectedDie == d6Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -128,12 +130,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d8Values;
-                        print(selectedDie.length);
+                        selectedDie = d8Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d8Values.length
+                      backgroundColor: selectedDie == d8Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -146,12 +148,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d10Values;
-                        print(selectedDie.length);
+                        selectedDie = d10Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d10Values.length
+                      backgroundColor: selectedDie == d10Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -164,12 +166,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d12Values;
-                        print(selectedDie.length);
+                        selectedDie = d12Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d12Values.length
+                      backgroundColor: selectedDie == d12Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -182,12 +184,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d20Values;
-                        print(selectedDie.length);
+                        selectedDie = d20Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d20Values.length
+                      backgroundColor: selectedDie == d20Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -200,12 +202,12 @@ class _DiceRollerViewState extends State<DiceRollerView>
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        selectedDie = d100Values;
-                        print(selectedDie.length);
+                        selectedDie = d100Values.length;
+                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedDie.length == d100Values.length
+                      backgroundColor: selectedDie == d100Values.length
                           ? selectedColor
                           : Colors.black26,
                       shape: RoundedRectangleBorder(
@@ -221,8 +223,7 @@ class _DiceRollerViewState extends State<DiceRollerView>
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  dValue = selectedDie[DateTime.now().millisecondsSinceEpoch %
-                      selectedDie.length];
+                  dValue = Random().nextInt(selectedDie) + 1;
                   history.add(dValue);
                 });
               },
