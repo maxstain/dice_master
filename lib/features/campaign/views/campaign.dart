@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/models/note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,11 +67,9 @@ class CampaignView extends StatelessWidget {
                   return ListView.builder(
                     itemCount: notes.length,
                     itemBuilder: (ctx, index) {
-                      final note = notes[index].data() as Map<String, dynamic>;
+                      final note = Note.fromJson(
+                          notes[index].data() as Map<String, dynamic>);
                       final noteId = notes[index].id;
-                      final title = note["title"] ?? "Untitled Note";
-                      final content = note["content"] ?? "";
-                      final date = note["date"] ?? "";
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         shape: RoundedRectangleBorder(
@@ -88,7 +87,7 @@ class CampaignView extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      title,
+                                      note.title,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -104,8 +103,8 @@ class CampaignView extends StatelessWidget {
                                           context,
                                           campaign.id,
                                           noteId,
-                                          title,
-                                          content,
+                                          note.title,
+                                          note.content,
                                         );
                                       },
                                     ),
@@ -123,7 +122,7 @@ class CampaignView extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                content,
+                                note.content,
                                 style: const TextStyle(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -131,7 +130,12 @@ class CampaignView extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                "${date.split('T').first.split('-').reversed.join('/')}",
+                                note.date
+                                    .split('T')
+                                    .first
+                                    .split('-')
+                                    .reversed
+                                    .join('/'),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
