@@ -74,17 +74,17 @@ flutter pub get
 
 ## 📅 Roadmap (Planned)
 
-- 🎲 Dice roller with multiple dice types and modifiers
+- 🎲 Dice roller with multiple dice types and modifiers (Done)
 - 🧙 Advanced character sheets and customization
-- 📜 Rich session tracking (notes, events, and history)
+- 📜 Rich session tracking (notes, events, and history) (Done)
 - 🌍 Localization (multi‑language support)
 - 🔔 Notifications/reminders
-- 💾 Backup & restore
+- 💾 Backup & restore (Done)
 - ♿ Accessibility improvements
 - 📈 Analytics/insights
-- 🤝 Multiplayer session tools and custom rules
+- 🤝 Multiplayer session tools and custom rules (Done)
 - 🧩 Integrations (DnDBeyond, Roll20, virtual tabletops)
-- 🧑‍🏫 Tutorial/onboarding and UI/UX enhancements
+- 🧑‍🏫 Tutorial/onboarding and UI/UX enhancements (Done)
 
 ---
 
