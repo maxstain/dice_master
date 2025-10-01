@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,57 +48,103 @@ class CampaignView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: notes.isEmpty
-                  ? const Center(child: Text("No notes available"))
-                  : ListView.builder(
-                      itemCount: notes.length,
-                      itemBuilder: (ctx, i) {
-                        final note = notes[i];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            title: Text(note["title"] ?? "Untitled"),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(note["content"] ?? ""),
-                                if (note["date"] != null)
-                                  Text(note["date"],
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
-                              ],
-                            ),
-                            trailing: isDm
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _showEditNoteDialog(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('campaigns')
+                    .doc(campaign.id)
+                    .collection('notes')
+                    .orderBy('date', descending: true)
+                    .snapshots(),
+                builder: (ctx, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Text("No notes yet");
+                  }
+                  final notes = snapshot.data!.docs;
+                  return ListView.builder(
+                    itemCount: notes.length,
+                    itemBuilder: (ctx, index) {
+                      final note = notes[index].data() as Map<String, dynamic>;
+                      final noteId = notes[index].id;
+                      final title = note["title"] ?? "Untitled Note";
+                      final content = note["content"] ?? "";
+                      final date = note["date"] ?? "";
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isDm) ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.edit,
+                                          color: Colors.grey),
+                                      onPressed: () {
+                                        _showEditNoteDialog(
                                           context,
                                           campaign.id,
-                                          note["id"],
-                                          note["title"] ?? "",
-                                          note["content"] ?? "",
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        onPressed: () {
-                                          context.read<CampaignBloc>().add(
-                                                DeleteNoteRequested(
-                                                    campaign.id, note["id"]),
-                                              );
-                                        },
-                                      ),
-                                    ],
-                                  )
-                                : null,
+                                          noteId,
+                                          title,
+                                          content,
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.redAccent),
+                                      onPressed: () {
+                                        context.read<CampaignBloc>().add(
+                                              DeleteNoteRequested(
+                                                  campaign.id, noteId),
+                                            );
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              Text(
+                                content,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "${date.split('T').first.split('-').reversed.join('/')}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
