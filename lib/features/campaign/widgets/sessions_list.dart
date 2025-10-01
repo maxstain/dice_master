@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dice_master/models/session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,11 +47,12 @@ class SessionsList extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ...sessions.map((doc) {
-              final session =
-                  Session.fromJson(doc.data() as Map<String, dynamic>);
+              final session = doc.data() as Map<String, dynamic>;
               final sessionId = doc.id;
-              final isExpired = DateTime.parse(session.dateTime.toString())
-                  .isBefore(DateTime.now());
+              final title = session["title"] ?? "Untitled Session";
+              final description = session["description"] ?? "";
+              final date = session["date"] ?? "";
+              final isExpired = DateTime.parse(date).isBefore(DateTime.now());
 
               return Card(
                 color: isExpired
@@ -72,7 +72,7 @@ class SessionsList extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              session.title,
+                              title,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -113,17 +113,17 @@ class SessionsList extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        session.description,
+                        description,
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 14),
                       ),
-                      if (session.dateTime.toString().isNotEmpty)
+                      if (date.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Row(
                             children: [
                               Text(
-                                "${session.dateTime.weekday == DateTime.now().weekday ? "Today" : session.dateTime.weekday == DateTime.now().weekday - 1 ? "Yesterday" : ""} ${session.dateTime.toLocal().toString().split(' ')[0].split('-').reversed.join('/')} at ${session.dateTime.toLocal().toString().split(' ')[1].split('.')[0].split(':')[0]}:${session.dateTime.toLocal().toString().split(' ')[1].split('.')[0].split(':')[1]}",
+                                "${date.split('T').first.split('-').reversed.join('/')} - ${date.split('T').last.split('.')[0].split(':').first}:${date.split('T').last.split('.')[0].split(':').last}",
                                 style: const TextStyle(
                                     fontSize: 12, color: Colors.grey),
                               ),
@@ -157,13 +157,12 @@ class SessionsList extends StatelessWidget {
     BuildContext context,
     String campaignId,
     String sessionId,
-    Session session,
+    Map<String, dynamic> session,
   ) {
-    final titleController = TextEditingController(text: session.title);
+    final titleController = TextEditingController(text: session["title"]);
     final descriptionController =
-        TextEditingController(text: session.description);
-    final dateController =
-        TextEditingController(text: session.dateTime.toString());
+        TextEditingController(text: session["description"]);
+    final dateController = TextEditingController(text: session["date"]);
 
     showDialog(
       context: context,
