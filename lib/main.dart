@@ -1,5 +1,6 @@
 import 'package:dice_master/core/connectivity/connectivity_cubit.dart';
 import 'package:dice_master/core/connectivity/connectivity_snackbar_wrapper.dart';
+import 'package:dice_master/core/notifications/notification_cubit.dart';
 import 'package:dice_master/features/campaign/bloc/campaign_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/splash/bloc/splash_bloc.dart';
@@ -32,6 +33,7 @@ class DiceMasterApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider(create: (_) => ConnectivityCubit()),
+        BlocProvider(create: (_) => NotificationCubit()),
         BlocProvider(
           create: (context) => SplashBloc(),
         ),
