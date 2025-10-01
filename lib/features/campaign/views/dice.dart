@@ -16,7 +16,8 @@ class _DiceRollerViewState extends State<DiceRollerView>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 450));
     _controller.addListener(() {
       setState(() {});
     });
@@ -28,20 +29,20 @@ class _DiceRollerViewState extends State<DiceRollerView>
     super.dispose();
   }
 
+  final d6Values = List.generate(6, (index) => index + 1);
+  final d4Values = List.generate(4, (index) => index + 1);
+  final d20Values = List.generate(20, (index) => index + 1);
+  final d10Values = List.generate(10, (index) => index + 1);
+  final d12Values = List.generate(12, (index) => index + 1);
+  final d8Values = List.generate(8, (index) => index + 1);
+  final d100Values = List.generate(100, (index) => index + 1);
+  int dValue = 0;
+  final history = [];
+  var selectedDie = 4;
+  final selectedColor = Colors.purple;
+
   @override
   Widget build(BuildContext context) {
-    final d6Values = List.generate(6, (index) => index + 1);
-    final d4Values = List.generate(4, (index) => index + 1);
-    final d20Values = List.generate(20, (index) => index + 1);
-    final d10Values = List.generate(10, (index) => index + 1);
-    final d12Values = List.generate(12, (index) => index + 1);
-    final d8Values = List.generate(8, (index) => index + 1);
-    final d100Values = List.generate(100, (index) => index + 1);
-    int dValue = 0;
-    final history = [];
-    var selectedDie = 4;
-    const selectedColor = Colors.purple;
-
     return Scaffold(
       body: Center(
         child: Column(
@@ -95,7 +96,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d4Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -113,7 +113,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d6Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -131,7 +130,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d8Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -149,7 +147,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d10Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -167,7 +164,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d12Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -185,7 +181,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d20Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -203,7 +198,6 @@ class _DiceRollerViewState extends State<DiceRollerView>
                     onPressed: () {
                       setState(() {
                         selectedDie = d100Values.length;
-                        print(selectedDie);
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -224,6 +218,7 @@ class _DiceRollerViewState extends State<DiceRollerView>
               onPressed: () {
                 setState(() {
                   dValue = Random().nextInt(selectedDie) + 1;
+                  _controller.forward(from: 0);
                   history.add(dValue);
                 });
               },
@@ -269,8 +264,8 @@ class _DiceRollerViewState extends State<DiceRollerView>
                       itemCount: history.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          title: Text("Roll $index"),
-                          subtitle: Text("Value: $index"),
+                          title: Text("Roll ${index + 1}: D$selectedDie"),
+                          subtitle: Text("Value: ${history[index]}"),
                         );
                       },
                     ),
