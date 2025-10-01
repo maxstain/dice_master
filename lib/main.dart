@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dice_master/core/connectivity/connectivity_cubit.dart';
 import 'package:dice_master/core/connectivity/connectivity_snackbar_wrapper.dart';
 import 'package:dice_master/core/notifications/notification_cubit.dart';
@@ -6,6 +7,7 @@ import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/splash/bloc/splash_bloc.dart';
 import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,6 +23,32 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await AwesomeNotifications().initialize(
+    null, // use default icon, or provide drawable resource name on Android
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic Notifications',
+        channelDescription: 'General notifications',
+        defaultColor: const Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+        ledColor: Colors.white,
+      ),
+    ],
+    channelGroups: [
+      NotificationChannelGroup(
+        channelGroupKey: 'basic_group',
+        channelGroupName: 'Basic group',
+      ),
+    ],
+    debug: kDebugMode,
+  );
+
+  // Request permission if needed
+  final isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  if (!isAllowed) {
+    await AwesomeNotifications().requestPermissionToSendNotifications();
+  }
   runApp(const DiceMasterApp());
 }
 

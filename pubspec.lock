@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  awesome_notifications:
+    dependency: "direct main"
+    description:
+      name: awesome_notifications
+      sha256: "0d5fa4457f2ba4e536adc3ef6af709cdcecf4a05a1f3035981e9afa2f899b2a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1"
   bloc:
     dependency: "direct main"
     description:
@@ -278,38 +286,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  flutter_local_notifications:
-    dependency: "direct main"
-    description:
-      name: flutter_local_notifications
-      sha256: "7ed76be64e8a7d01dfdf250b8434618e2a028c9dfa2a3c41dc9b531d4b3fc8a5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "19.4.2"
-  flutter_local_notifications_linux:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_linux
-      sha256: e3c277b2daab8e36ac5a6820536668d07e83851aeeb79c446e525a70710770a5
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.0"
-  flutter_local_notifications_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_platform_interface
-      sha256: "277d25d960c15674ce78ca97f57d0bae2ee401c844b6ac80fcd972a9c99d09fe"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.1.0"
-  flutter_local_notifications_windows:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_windows
-      sha256: "8d658f0d367c48bd420e7cf2d26655e2d1130147bca1eea917e576ca76668aaf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -360,6 +336,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.4"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.2"
   leak_tracker:
     dependency: transitive
     description:
@@ -605,14 +589,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
-  timezone:
-    dependency: transitive
-    description:
-      name: timezone
-      sha256: dd14a3b83cfd7cb19e7888f1cbc20f258b8d71b54c06f79ac585f14093a287d1
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1"
   typed_data:
     dependency: transitive
     description:
