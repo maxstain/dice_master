@@ -139,7 +139,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ),
                           padding: EdgeInsets.symmetric(
                             horizontal:
-                                MediaQuery.of(context).size.width * 0.32,
+                                MediaQuery.of(context).size.width * 0.31,
                             vertical: 16,
                           ),
                         ),
