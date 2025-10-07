@@ -16,6 +16,28 @@ Future<User> _getUser() async {
   return FirebaseAuth.instance.currentUser!;
 }
 
+Future<void> _showDeleteAccountDialog(BuildContext context) async {
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete Account"),
+          content: const Text("Are you sure you want to delete your account?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  context.read<AuthBloc>().add(DeleteAccountRequested()),
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      });
+}
+
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
@@ -64,8 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   horizontal: 20.0,
                 ),
                 child: ElevatedButton(
-                  onPressed: () =>
-                      context.read<AuthBloc>().add(DeleteAccountRequested()),
+                  onPressed: () => _showDeleteAccountDialog(context),
                   child: const Text(
                     "Delete Account",
                     style: TextStyle(
