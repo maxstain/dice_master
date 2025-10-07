@@ -1,5 +1,3 @@
-import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
-import 'package:dice_master/features/auth/bloc/auth_event.dart';
 import 'package:dice_master/features/settings/bloc/settings_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,28 +12,6 @@ class SettingsScreen extends StatefulWidget {
 
 Future<User> _getUser() async {
   return FirebaseAuth.instance.currentUser!;
-}
-
-Future<void> _showDeleteAccountDialog(BuildContext context) async {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Delete Account"),
-          content: const Text("Are you sure you want to delete your account?"),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () =>
-                  context.read<AuthBloc>().add(DeleteAccountRequested()),
-              child: const Text("Delete"),
-            ),
-          ],
-        );
-      });
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
@@ -78,22 +54,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 20.0,
-                ),
-                child: ElevatedButton(
-                  onPressed: () => _showDeleteAccountDialog(context),
-                  child: const Text(
-                    "Delete Account",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               ),
             ],
           );

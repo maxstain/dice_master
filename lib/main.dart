@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dice_master/core/connectivity/connectivity_cubit.dart';
 import 'package:dice_master/core/connectivity/connectivity_snackbar_wrapper.dart';
 import 'package:dice_master/core/notifications/notification_cubit.dart';
+import 'package:dice_master/features/account/bloc/account_bloc.dart';
 import 'package:dice_master/features/campaign/bloc/campaign_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
 import 'package:dice_master/features/settings/bloc/settings_bloc.dart';
@@ -71,6 +72,12 @@ class DiceMasterApp extends StatelessWidget {
           create: (_) => HomeBloc()
             ..add(
               const HomeTriggerInitialLoad(),
+            ),
+        ),
+        BlocProvider(
+          create: (_) => AccountBloc()
+            ..add(
+              const TriggerAccountLoaded(),
             ),
         ),
         BlocProvider(

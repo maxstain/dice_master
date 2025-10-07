@@ -1,6 +1,4 @@
-import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
-import 'package:dice_master/features/auth/bloc/auth_event.dart';
-import 'package:dice_master/features/settings/settings.dart';
+import 'package:dice_master/features/account/account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,19 +36,14 @@ class HomeLobbyScreen extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
+              leading: const Icon(Icons.account_box),
+              title: const Text("Account"),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const SettingsScreen(),
+                  builder: (_) => const AccountScreen(),
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Logout"),
-              onTap: () => context.read<AuthBloc>().add(SignOutRequested()),
             ),
           ],
         ),
