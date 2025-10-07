@@ -4,6 +4,7 @@ import 'package:dice_master/core/connectivity/connectivity_snackbar_wrapper.dart
 import 'package:dice_master/core/notifications/notification_cubit.dart';
 import 'package:dice_master/features/campaign/bloc/campaign_bloc.dart';
 import 'package:dice_master/features/home/bloc/home_bloc.dart';
+import 'package:dice_master/features/settings/bloc/settings_bloc.dart';
 import 'package:dice_master/features/splash/bloc/splash_bloc.dart';
 import 'package:dice_master/features/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -67,7 +68,17 @@ class DiceMasterApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => AuthBloc()),
         BlocProvider(
-            create: (_) => HomeBloc()..add(const HomeTriggerInitialLoad())),
+          create: (_) => HomeBloc()
+            ..add(
+              const HomeTriggerInitialLoad(),
+            ),
+        ),
+        BlocProvider(
+          create: (_) => SettingsBloc()
+            ..add(
+              const TriggerSettingsInitial(),
+            ),
+        ),
         BlocProvider(create: (_) => CampaignBloc())
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

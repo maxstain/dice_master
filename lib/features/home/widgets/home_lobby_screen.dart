@@ -1,3 +1,6 @@
+import 'package:dice_master/features/auth/bloc/auth_bloc.dart';
+import 'package:dice_master/features/auth/bloc/auth_event.dart';
+import 'package:dice_master/features/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,6 +17,43 @@ class HomeLobbyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Campaign Lobby"),
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            const DrawerHeader(
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage("assets/images/Logo.png"),
+                  ),
+                  SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [],
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text("Settings"),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SettingsScreen(),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Logout"),
+              onTap: () => context.read<AuthBloc>().add(SignOutRequested()),
+            ),
+          ],
+        ),
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
