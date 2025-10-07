@@ -25,6 +25,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignInRequested>(_onSignInRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<SignOutRequested>(_onSignOutRequested);
+    on<DeleteAccountRequested>(_onDeleteAccountRequested);
   }
 
   void _onAuthUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
@@ -48,6 +49,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       print('AuthBloc: User Unauthenticated - Emitting AuthUnauthenticated');
       emit(AuthUnauthenticated());
+    }
+  }
+
+  Future<void> _onDeleteAccountRequested(
+      DeleteAccountRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      final user = _firebaseAuth.currentUser;
+      await user?.delete();
+      emit(AuthUnauthenticated());
+    } on FirebaseAuthException catch (e) {
+      emit(
+          AuthFailure(e.message ?? 'Delete account failed. Please try again.'));
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
     }
   }
 

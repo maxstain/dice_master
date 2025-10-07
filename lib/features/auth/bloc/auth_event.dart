@@ -40,4 +40,6 @@ class SignUpRequested extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
-class SignOutRequested extends AuthEvent {} // New event
+class SignOutRequested extends AuthEvent {}
+
+class DeleteAccountRequested extends AuthEvent {}

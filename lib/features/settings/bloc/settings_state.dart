@@ -16,3 +16,9 @@ class SettingsLoaded extends SettingsState {
 
   const SettingsLoaded(this.username);
 }
+
+class SettingsFailure extends SettingsState {
+  final String message;
+
+  const SettingsFailure(this.message);
+}
