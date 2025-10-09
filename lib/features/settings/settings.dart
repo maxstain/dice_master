@@ -1,7 +1,6 @@
 import 'package:dice_master/core/theme/theme_cubit.dart';
 import 'package:dice_master/features/account/widgets/custom_list_tile.dart';
 import 'package:dice_master/features/settings/bloc/settings_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,10 +9,6 @@ class SettingsScreen extends StatefulWidget {
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-Future<User> _getUser() async {
-  return FirebaseAuth.instance.currentUser!;
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
