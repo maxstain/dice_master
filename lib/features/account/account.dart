@@ -83,22 +83,22 @@ class _AccountScreenState extends State<AccountScreen> {
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(
-                            radius: 30.0,
-                            child: FutureBuilder(
-                              future: Future(() async {
-                                if (state.user.photoURL != null) {
-                                  return state.user.photoURL;
-                                }
-                              }),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return Image.network(snapshot.data!);
-                                } else {
-                                  return const Icon(Icons.person);
-                                }
-                              },
-                            ),
+                          FutureBuilder(
+                            future: Future(() async {
+                              if (state.user.photoURL != null) {
+                                return state.user.photoURL;
+                              }
+                            }),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: NetworkImage(snapshot.data!),
+                                );
+                              } else {
+                                return const Icon(Icons.person);
+                              }
+                            },
                           ),
                           const SizedBox(width: 16.0),
                           Column(

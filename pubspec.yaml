@@ -24,6 +24,7 @@ dependencies:
   shimmer: ^3.0.0
   bloc: ^9.0.1
   awesome_notifications: ^0.10.1
+  image_picker: ^1.2.0
 
 dev_dependencies:
   flutter_test:

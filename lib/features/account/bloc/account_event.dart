@@ -28,3 +28,20 @@ class TriggerAccountLoading extends AccountEvent {
 class TriggerAccountInitial extends AccountEvent {
   const TriggerAccountInitial();
 }
+
+class TriggerAccountUpdate extends AccountEvent {
+  final String displayName;
+  final String photoURL;
+  final String phoneNumber;
+  final String email;
+
+  const TriggerAccountUpdate({
+    required this.displayName,
+    required this.photoURL,
+    required this.email,
+    required this.phoneNumber,
+  });
+
+  @override
+  List<Object> get props => [displayName, photoURL, email, phoneNumber];
+}
