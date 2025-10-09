@@ -60,7 +60,7 @@ Future<void> _onTriggerAccountUpdate(
         .doc(updatedUser!.uid)
         .update({
       'displayName': event.displayName,
-      'photoURL': event.photoURL,
+      'profilePictureUrl': event.photoURL,
       'email': event.email,
       'phoneNumber': event.phoneNumber,
     });

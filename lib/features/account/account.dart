@@ -1,4 +1,3 @@
-import 'package:dice_master/core/theme/theme_cubit.dart';
 import 'package:dice_master/features/account/bloc/account_bloc.dart';
 import 'package:dice_master/features/account/edit_profile_screen.dart';
 import 'package:dice_master/features/account/widgets/custom_list_tile.dart';
@@ -196,20 +195,6 @@ class _AccountScreenState extends State<AccountScreen> {
                           size: 14,
                         ),
                         onTap: () {},
-                      ),
-                      CustomListTile(
-                        icon: Icons.dark_mode_outlined,
-                        iconColor: Theme.of(context).colorScheme.primary,
-                        title: "Theme",
-                        titleColor: Colors.white,
-                        subtitle: "Toggle appearance theme",
-                        trailing: Switch(
-                          value:
-                              Theme.of(context).brightness == Brightness.dark,
-                          onChanged: (value) {
-                            context.read<ThemeCubit>().toggle();
-                          },
-                        ),
                       ),
                       CustomListTile(
                         icon: Icons.privacy_tip_outlined,
