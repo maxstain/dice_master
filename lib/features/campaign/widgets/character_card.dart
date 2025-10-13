@@ -1,3 +1,4 @@
+import 'package:dice_master/core/widgets/custom_dialogs.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
@@ -14,9 +15,9 @@ Future<void> _showCharacterOptionsDialog(BuildContext context) async {
   showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Character Options"),
-          content: const Text("Select an action"),
+        return CustomDialog(
+          title: "Character Options",
+          body: const Text("Choose an action for this character."),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
