@@ -30,6 +30,18 @@ class AddCharacterRequested extends CampaignEvent {
   List<Object?> get props => [campaignId, characterData];
 }
 
+class UpdateCharacterRequested extends CampaignEvent {
+  final String campaignId;
+  final String characterId;
+  final Map<String, dynamic> characterData;
+
+  const UpdateCharacterRequested(
+      this.campaignId, this.characterId, this.characterData);
+
+  @override
+  List<Object?> get props => [campaignId, characterId, characterData];
+}
+
 /// ==== Sessions (now a subcollection) ====
 class AddSessionRequested extends CampaignEvent {
   final String campaignId;

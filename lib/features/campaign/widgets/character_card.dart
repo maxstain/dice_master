@@ -1,4 +1,5 @@
 import 'package:dice_master/core/widgets/custom_dialogs.dart';
+import 'package:dice_master/features/campaign/views/characters/edit_character.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
@@ -11,32 +12,41 @@ class CharacterCard extends StatefulWidget {
   State<CharacterCard> createState() => _CharacterCardState();
 }
 
-Future<void> _showCharacterOptionsDialog(BuildContext context) async {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return CustomDialog(
-          title: "Character Options",
-          body: const Text("Choose an action for this character."),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () => {},
-              child: const Text("Edit"),
-            ),
-            ElevatedButton(
-              onPressed: () => {},
-              child: const Text("Delete"),
-            ),
-          ],
-        );
-      });
-}
-
 class _CharacterCardState extends State<CharacterCard> {
+  Future<void> _showCharacterOptionsDialog(BuildContext context) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialog(
+            title: "Character Options",
+            body: const Text("Choose an action for this character."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () => {
+                  Navigator.pop(context),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => EditCharacterScreen(
+                        characterId: widget.character.id,
+                      ),
+                    ),
+                  ),
+                },
+                child: const Text("Edit"),
+              ),
+              ElevatedButton(
+                onPressed: () => {},
+                child: const Text("Delete"),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

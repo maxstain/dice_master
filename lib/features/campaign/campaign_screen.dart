@@ -6,7 +6,7 @@ import '../campaign/bloc/campaign_bloc.dart';
 import '../campaign/bloc/campaign_event.dart';
 import '../campaign/bloc/campaign_state.dart';
 import 'views/campaign.dart';
-import 'views/characters.dart';
+import 'views/characters/characters.dart';
 import 'views/dashboard.dart';
 import 'views/sessions.dart';
 

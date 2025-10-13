@@ -19,6 +19,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
 
     // Characters
     on<AddCharacterRequested>(_onAddCharacter);
+    on<UpdateCharacterRequested>(_onUpdateCharacter);
 
     // Sessions (subcollection)
     on<AddSessionRequested>(_onAddSession);
@@ -107,6 +108,25 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       }
     } catch (e) {
       emit(CampaignFailure('Failed to add character: $e'));
+    }
+  }
+
+  Future<void> _onUpdateCharacter(
+      UpdateCharacterRequested event, Emitter<CampaignState> emit) async {
+    try {
+      final ref = FirebaseFirestore.instance
+          .collection('campaigns')
+          .doc(event.campaignId)
+          .collection('players')
+          .doc(event.characterId);
+      await ref.update(event.characterData);
+
+      if (state is CampaignLoaded) {
+        emit((state as CampaignLoaded)
+            .copyWith(successMessage: 'Character updated successfully'));
+      }
+    } catch (e) {
+      emit(CampaignFailure('Failed to update character: $e'));
     }
   }
 
@@ -283,6 +303,8 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       isDungeonMaster: event.campaign!.hostId == event.campaign!.hostId,
     ));
   }
+
+  /* ============================ Players =================================== */
 
   void _onPlayersUpdated(PlayersUpdated event, Emitter<CampaignState> emit) {
     if (state is CampaignLoaded) {
