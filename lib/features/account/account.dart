@@ -221,11 +221,11 @@ class _AccountScreenState extends State<AccountScreen> {
                         onTap: () {},
                       ),
                       CustomListTile(
-                        icon: Icons.logout_outlined,
+                        icon: Icons.delete_outline,
                         iconColor: Colors.red,
-                        title: "Log Out",
+                        title: "Delete account",
                         titleColor: Colors.red,
-                        subtitle: "Sign out of your account",
+                        subtitle: "Delete your account",
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 14,

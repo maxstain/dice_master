@@ -10,111 +10,139 @@ class CharacterCard extends StatefulWidget {
   State<CharacterCard> createState() => _CharacterCardState();
 }
 
+Future<void> _showCharacterOptionsDialog(BuildContext context) async {
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Character Options"),
+          content: const Text("Select an action"),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => {},
+              child: const Text("Edit"),
+            ),
+            ElevatedButton(
+              onPressed: () => {},
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      });
+}
+
 class _CharacterCardState extends State<CharacterCard> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6.0,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        color: Colors.grey.shade900,
-      ),
-      margin: const EdgeInsets.symmetric(
-          vertical: 8.0, horizontal: 10.0), // Adjusted margin
-      child: Padding(
-        padding: const EdgeInsets.all(16.0), // Consistent padding
-        child: Column(
-          children: [
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100.0),
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.circular(100.0),
-                      color: Colors.black,
+    return GestureDetector(
+      onLongPress: () => _showCharacterOptionsDialog(context),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 6.0,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          color: Colors.grey.shade900,
+        ),
+        margin: const EdgeInsets.symmetric(
+            vertical: 8.0, horizontal: 10.0), // Adjusted margin
+        child: Padding(
+          padding: const EdgeInsets.all(16.0), // Consistent padding
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100.0),
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.circular(100.0),
+                        color: Colors.black,
+                      ),
+                      child: widget.character.imageUrl.isNotEmpty
+                          ? Image.network(
+                              widget.character.imageUrl,
+                              width: 66,
+                              height: 66,
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.white70,
+                            ),
                     ),
-                    child: widget.character.imageUrl.isNotEmpty
-                        ? Image.network(
-                            widget.character.imageUrl,
-                            width: 66,
-                            height: 66,
-                            fit: BoxFit.cover,
-                          )
-                        : const Icon(
-                            Icons.person,
-                            size: 40,
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.character.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4.0),
+                        Text(
+                          "Level ${widget.character.level} ${widget.character.race} ${widget.character.role}",
+                          style: const TextStyle(
                             color: Colors.white70,
                           ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(
+                    value: widget.character.hp / widget.character.maxHp,
+                    backgroundColor: Colors.grey.shade700,
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
+                    minHeight: 8.0,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        widget.character.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.white,
+                      const Text(
+                        "HP",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
                         ),
                       ),
-                      const SizedBox(height: 4.0),
                       Text(
-                        "Level ${widget.character.level} ${widget.character.race} ${widget.character.role}",
+                        "${widget.character.hp} / ${widget.character.maxHp}",
                         style: const TextStyle(
-                          color: Colors.white70,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                LinearProgressIndicator(
-                  value: widget.character.hp / widget.character.maxHp,
-                  backgroundColor: Colors.grey.shade700,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
-                  minHeight: 8.0,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                const SizedBox(height: 8.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "HP",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    Text(
-                      "${widget.character.hp} / ${widget.character.maxHp}",
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
