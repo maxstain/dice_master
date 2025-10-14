@@ -4,9 +4,11 @@ import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
 class CharacterCard extends StatefulWidget {
+  final String campaignId;
   final Character character;
 
-  const CharacterCard({super.key, required this.character});
+  const CharacterCard(
+      {super.key, required this.character, required this.campaignId});
 
   @override
   State<CharacterCard> createState() => _CharacterCardState();
@@ -32,6 +34,7 @@ class _CharacterCardState extends State<CharacterCard> {
                     MaterialPageRoute(
                       builder: (context) => EditCharacterScreen(
                         characterId: widget.character.id,
+                        campaignId: widget.campaignId,
                       ),
                     ),
                   ),

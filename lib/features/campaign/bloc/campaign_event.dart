@@ -36,7 +36,10 @@ class UpdateCharacterRequested extends CampaignEvent {
   final Map<String, dynamic> characterData;
 
   const UpdateCharacterRequested(
-      this.campaignId, this.characterId, this.characterData);
+    this.campaignId,
+    this.characterId,
+    this.characterData,
+  );
 
   @override
   List<Object?> get props => [campaignId, characterId, characterData];

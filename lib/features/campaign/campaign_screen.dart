@@ -245,7 +245,11 @@ class _CampaignScreenState extends State<CampaignScreen> {
               isDm: isDm,
               onNavigate: _onItemTapped,
             ),
-            CharactersView(players: players, isDm: isDm),
+            CharactersView(
+              players: players,
+              isDm: isDm,
+              campaignId: campaign.id,
+            ),
             CampaignView(
               campaign: campaign,
               players: players,

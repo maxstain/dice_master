@@ -6,11 +6,13 @@ import '../../../../models/character.dart';
 class CharactersView extends StatelessWidget {
   final List<Character> players;
   final bool isDm;
+  final String campaignId;
 
   const CharactersView({
     super.key,
     required this.players,
     required this.isDm,
+    required this.campaignId,
   });
 
   @override
@@ -22,7 +24,8 @@ class CharactersView extends StatelessWidget {
               itemCount: players.length,
               itemBuilder: (ctx, i) {
                 final character = players[i];
-                return CharacterCard(character: character);
+                return CharacterCard(
+                    character: character, campaignId: campaignId);
               },
             ),
     );
