@@ -1,3 +1,4 @@
+import 'package:dice_master/core/widgets/custom_dialogs.dart';
 import 'package:dice_master/features/campaign/views/dice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +7,7 @@ import '../campaign/bloc/campaign_bloc.dart';
 import '../campaign/bloc/campaign_event.dart';
 import '../campaign/bloc/campaign_state.dart';
 import 'views/campaign.dart';
-import 'views/characters/characters.dart';
+import 'views/characters.dart';
 import 'views/dashboard.dart';
 import 'views/sessions.dart';
 
@@ -53,19 +54,21 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   final isProcessing =
                       state is CampaignLoaded ? state.isProcessing : false;
 
-                  return AlertDialog(
-                    title: const Text("Add Session"),
-                    content: Column(
+                  return CustomDialog(
+                    title: "Add Session",
+                    body: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TextField(
-                            controller: titleController,
-                            decoration:
-                                const InputDecoration(labelText: "Title")),
+                          controller: titleController,
+                          decoration: const InputDecoration(labelText: "Title"),
+                        ),
+                        const SizedBox(height: 12),
                         TextField(
-                            controller: descriptionController,
-                            decoration: const InputDecoration(
-                                labelText: "Description")),
+                          controller: descriptionController,
+                          decoration:
+                              const InputDecoration(labelText: "Description"),
+                        ),
                         const SizedBox(height: 12),
                         Row(
                           children: [
@@ -121,8 +124,9 @@ class _CampaignScreenState extends State<CampaignScreen> {
                             ? null
                             : () {
                                 final title = titleController.text.trim();
-                                if (title.isEmpty || selectedDate == null)
+                                if (title.isEmpty || selectedDate == null) {
                                   return;
+                                }
 
                                 context.read<CampaignBloc>().add(
                                       AddSessionRequested(campaignId, {
@@ -348,19 +352,21 @@ class _CampaignScreenState extends State<CampaignScreen> {
               final isProcessing =
                   state is CampaignLoaded ? state.isProcessing : false;
 
-              return AlertDialog(
-                title: const Text("Add Character"),
-                content: Column(
+              return CustomDialog(
+                title: "Add Character",
+                body: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
                       controller: nameController,
                       decoration: const InputDecoration(labelText: "Name"),
                     ),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: roleController,
                       decoration: const InputDecoration(labelText: "Role"),
                     ),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: raceController,
                       decoration: const InputDecoration(labelText: "Race"),

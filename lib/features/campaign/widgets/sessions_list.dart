@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dice_master/core/widgets/custom_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -166,20 +167,25 @@ class SessionsList extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Edit Session"),
-        content: Column(
+      builder: (ctx) => CustomDialog(
+        title: "Edit Session",
+        body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: "Title")),
+              controller: titleController,
+              decoration: const InputDecoration(labelText: "Title"),
+            ),
+            const SizedBox(height: 8),
             TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: "Description")),
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: "Description"),
+            ),
+            const SizedBox(height: 8),
             TextField(
-                controller: dateController,
-                decoration: const InputDecoration(labelText: "Date")),
+              controller: dateController,
+              decoration: const InputDecoration(labelText: "Date"),
+            ),
           ],
         ),
         actions: [

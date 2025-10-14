@@ -1,7 +1,7 @@
 import 'package:dice_master/features/campaign/widgets/character_card.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../models/character.dart';
+import '../../../models/character.dart';
 
 class CharactersView extends StatelessWidget {
   final List<Character> players;

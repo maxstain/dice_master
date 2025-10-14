@@ -1,5 +1,5 @@
 import 'package:dice_master/core/widgets/custom_dialogs.dart';
-import 'package:dice_master/features/campaign/views/characters/edit_character.dart';
+import 'package:dice_master/features/campaign/widgets/edit_character.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
