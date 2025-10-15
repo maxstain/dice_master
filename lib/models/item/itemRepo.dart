@@ -1,3 +1,18 @@
+enum ItemCategory {
+  books,
+  gemstones,
+  ammunition,
+  firearms,
+  swords,
+  daggers,
+  armor,
+  potions,
+  food,
+  clothing,
+  tools,
+  craftingMaterials,
+}
+
 class ItemRepo {
   final String id;
   final String name;

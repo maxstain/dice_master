@@ -40,7 +40,6 @@ class _CreateCharacterScreenState extends State<CreateCharacterScreen> {
         hp: _hp,
         maxHp: _maxHp,
         xp: 0.0,
-        items: [],
         imageUrl: "",
       );
 

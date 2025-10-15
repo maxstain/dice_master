@@ -44,6 +44,27 @@ class DiceThemes {
           TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
         },
       ),
+      expansionTileTheme: const ExpansionTileThemeData(
+        iconColor: Colors.black,
+        collapsedIconColor: Colors.black,
+        textColor: Colors.black,
+        collapsedTextColor: Colors.black,
+        tilePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        childrenPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+        backgroundColor: Colors.white,
+        collapsedBackgroundColor: Colors.white,
+        expandedAlignment: Alignment.centerLeft,
+        expansionAnimationStyle: AnimationStyle(
+          curve: Curves.easeInOut,
+          duration: Duration(milliseconds: 200),
+        ),
+      ),
     );
   }
 
@@ -88,6 +109,27 @@ class DiceThemes {
           TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
           TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
         },
+      ),
+      expansionTileTheme: const ExpansionTileThemeData(
+        iconColor: Colors.white,
+        collapsedIconColor: Colors.white,
+        textColor: Colors.white,
+        collapsedTextColor: Colors.white,
+        tilePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        childrenPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+        backgroundColor: Color(0xFF1E1E1E),
+        collapsedBackgroundColor: Color(0xFF1E1E1E),
+        expandedAlignment: Alignment.centerLeft,
+        expansionAnimationStyle: AnimationStyle(
+          curve: Curves.easeInOut,
+          duration: Duration(milliseconds: 200),
+        ),
       ),
     );
   }

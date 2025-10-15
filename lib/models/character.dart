@@ -1,3 +1,6 @@
+// This is the character model for a D&D app.
+import 'package:dice_master/models/item/itemRepo.dart';
+
 class Character {
   final String id;
   final String name;
@@ -7,8 +10,11 @@ class Character {
   final int hp;
   final int maxHp;
   final double xp;
-  final List<Object> items;
+  final List<ItemRepo> items = [];
   final String imageUrl;
+  final String background = "";
+  final String subRole = "";
+  final List<String> personalityTraits = [];
 
   Character({
     required this.id,
@@ -19,12 +25,11 @@ class Character {
     required this.hp,
     required this.maxHp,
     this.xp = 0.0,
-    this.items = const [],
     required this.imageUrl,
   });
 
   factory Character.fromJson(Map<String, dynamic> json) {
-    return Character(
+    final char = Character(
       id: json['id'] as String? ?? 'DEFAULT_ID',
       name: json['name'] as String? ?? 'Unnamed Hero',
       role: json['role'] as String? ?? 'adventurer',
@@ -33,9 +38,16 @@ class Character {
       hp: json['hp'] as int? ?? 10,
       maxHp: json['maxHp'] as int? ?? 30,
       xp: (json['xp'] as num?)?.toDouble() ?? 0.0,
-      items: (json['items'] as List<dynamic>?)?.cast<Object>() ?? [],
       imageUrl: json['imageUrl'] as String? ?? '',
     );
+    if (json['items'] != null && json['items'] is List) {
+      for (var itemJson in json['items']) {
+        if (itemJson is Map<String, dynamic>) {
+          char.items.add(ItemRepo.fromJson(itemJson));
+        }
+      }
+    }
+    return char;
   }
 
   Map<String, dynamic> toJson() {

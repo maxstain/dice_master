@@ -3,7 +3,7 @@ import 'package:dice_master/models/item/itemRepo.dart';
 class Item extends ItemRepo {
   final double weight;
   final int quantity;
-  final String type; // e.g., "Potion", "Misc", "Ammo", etc.
+  final ItemCategory category; // e.g., "Potion", "Misc", "Ammo", etc.
   final Map<String, dynamic>
       properties; // e.g., {"damage": "1d6", "range": "30/120"}
 
@@ -14,7 +14,7 @@ class Item extends ItemRepo {
     required super.price,
     required this.weight,
     required this.quantity,
-    required this.type,
+    required this.category,
     required this.properties,
   });
 
@@ -26,7 +26,7 @@ class Item extends ItemRepo {
       weight: (data['weight'] ?? 0).toDouble(),
       quantity: data['quantity'] ?? 1,
       price: (data['price'] ?? 0).toDouble(),
-      type: data['type'] ?? 'Misc',
+      category: data['category'] ?? 'Misc',
       properties: Map<String, dynamic>.from(data['properties'] ?? {}),
     );
   }
@@ -38,13 +38,13 @@ class Item extends ItemRepo {
       'weight': weight,
       'quantity': quantity,
       'price': price,
-      'type': type,
+      'category': category,
       'properties': properties,
     };
   }
 
   @override
   String toString() {
-    return 'Item{id: $id, name: $name, description: $description, weight: $weight, quantity: $quantity, price: $price, type: $type, properties: $properties}';
+    return 'Item{id: $id, name: $name, description: $description, weight: $weight, quantity: $quantity, price: $price, category: $category, properties: $properties}';
   }
 }

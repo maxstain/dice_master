@@ -53,6 +53,18 @@ class _CharacterViewState extends State<CharacterSheet> {
                     "Race: ${widget.character.race}",
                     style: const TextStyle(fontSize: 18),
                   ),
+                  const SizedBox(height: 8),
+                  ExpansionTile(
+                    title: const Text("Items"),
+                    children: widget.character.items.isNotEmpty
+                        ? widget.character.items
+                            .map((item) => ListTile(
+                                  title: Text(item.name),
+                                  subtitle: Text(item.description),
+                                ))
+                            .toList()
+                        : [const ListTile(title: Text("No items"))],
+                  ),
                 ],
               ),
             );
