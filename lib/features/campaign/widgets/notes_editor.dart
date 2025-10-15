@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/campaign_bloc.dart';
-import '../bloc/campaign_event.dart';
-import '../bloc/campaign_state.dart';
 
 class NotesEditor extends StatelessWidget {
   final String campaignId;
@@ -30,9 +28,13 @@ class NotesEditor extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text("Campaign Notes",
-                    style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),),
+                  const Text(
+                    "Campaign Notes",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const Spacer(),
                   if (isDm)
                     IconButton(
@@ -62,38 +64,34 @@ class NotesEditor extends StatelessWidget {
                             if (note["date"] != null)
                               Text(
                                 note["date"],
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                           ],
                         ),
                         trailing: isDm
                             ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () =>
-                                  _showEditNoteDialog(
-                                    context,
-                                    campaignId,
-                                    note["id"],
-                                    note["title"] ?? "",
-                                    note["content"] ?? "",
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () => _showEditNoteDialog(
+                                      context,
+                                      campaignId,
+                                      note["id"],
+                                      note["title"] ?? "",
+                                      note["content"] ?? "",
+                                    ),
                                   ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                context.read<CampaignBloc>().add(
-                                    DeleteNoteRequested(
-                                        campaignId, note["id"]));
-                              },
-                            ),
-                          ],
-                        )
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () {
+                                      context.read<CampaignBloc>().add(
+                                          DeleteNoteRequested(
+                                              campaignId, note["id"]));
+                                    },
+                                  ),
+                                ],
+                              )
                             : null,
                       ),
                     );
@@ -113,47 +111,41 @@ class NotesEditor extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (ctx) =>
-          AlertDialog(
-            title: const Text("Add Note"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: "Title"),
-                ),
-                TextField(
-                  controller: contentController,
-                  decoration: const InputDecoration(labelText: "Content"),
-                  maxLines: 3,
-                ),
-              ],
+      builder: (ctx) => AlertDialog(
+        title: const Text("Add Note"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: "Title"),
             ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text("Cancel")),
-              ElevatedButton(
-                onPressed: () {
-                  final newNote = {
-                    "title": titleController.text.trim(),
-                    "content": contentController.text.trim(),
-                    "date": DateTime
-                        .now()
-                        .toString()
-                        .split(" ")
-                        .first,
-                  };
-                  context
-                      .read<CampaignBloc>()
-                      .add(AddNoteRequested(campaignId, newNote));
-                  Navigator.pop(ctx);
-                },
-                child: const Text("Add"),
-              ),
-            ],
+            TextField(
+              controller: contentController,
+              decoration: const InputDecoration(labelText: "Content"),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              final newNote = {
+                "title": titleController.text.trim(),
+                "content": contentController.text.trim(),
+                "date": DateTime.now().toString().split(" ").first,
+              };
+              context
+                  .read<CampaignBloc>()
+                  .add(AddNoteRequested(campaignId, newNote));
+              Navigator.pop(ctx);
+            },
+            child: const Text("Add"),
           ),
+        ],
+      ),
     );
   }
 
@@ -164,48 +156,41 @@ class NotesEditor extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (ctx) =>
-          AlertDialog(
-            title: const Text("Edit Note"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: "Title"),
-                ),
-                TextField(
-                  controller: contentController,
-                  decoration: const InputDecoration(labelText: "Content"),
-                  maxLines: 3,
-                ),
-              ],
+      builder: (ctx) => AlertDialog(
+        title: const Text("Edit Note"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: "Title"),
             ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text("Cancel")),
-              ElevatedButton(
-                onPressed: () {
-                  final updatedNote = {
-                    "title": titleController.text.trim(),
-                    "content": contentController.text.trim(),
-                    "date": DateTime
-                        .now()
-                        .toString()
-                        .split(" ")
-                        .first,
-                  };
-                  context
-                      .read<CampaignBloc>()
-                      .add(
-                      UpdateNoteRequested(campaignId, noteId, updatedNote));
-                  Navigator.pop(ctx);
-                },
-                child: const Text("Save"),
-              ),
-            ],
+            TextField(
+              controller: contentController,
+              decoration: const InputDecoration(labelText: "Content"),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              final updatedNote = {
+                "title": titleController.text.trim(),
+                "content": contentController.text.trim(),
+                "date": DateTime.now().toString().split(" ").first,
+              };
+              context
+                  .read<CampaignBloc>()
+                  .add(UpdateNoteRequested(campaignId, noteId, updatedNote));
+              Navigator.pop(ctx);
+            },
+            child: const Text("Save"),
           ),
+        ],
+      ),
     );
   }
 }

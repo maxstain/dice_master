@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../models/campaign.dart';
 import '../../../models/character.dart';
-import 'campaign_event.dart';
-import 'campaign_state.dart';
+
+part 'campaign_event.dart';
+part 'campaign_state.dart';
 
 class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
   StreamSubscription<DocumentSnapshot>? _campaignSub;
@@ -99,7 +102,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
           .collection('campaigns')
           .doc(event.campaignId)
           .collection('players')
-          .doc(event.characterData['id']);
+          .doc(FirebaseAuth.instance.currentUser!.uid);
       await ref.set(event.characterData);
 
       if (state is CampaignLoaded) {

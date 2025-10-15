@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dice_master/features/campaign/bloc/campaign_bloc.dart';
-import 'package:dice_master/features/campaign/bloc/campaign_event.dart';
-import 'package:dice_master/features/campaign/bloc/campaign_state.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

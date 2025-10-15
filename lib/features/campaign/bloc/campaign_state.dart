@@ -1,7 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-import '../../../models/campaign.dart';
-import '../../../models/character.dart';
+part of 'campaign_bloc.dart';
 
 abstract class CampaignState extends Equatable {
   const CampaignState();

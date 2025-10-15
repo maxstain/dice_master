@@ -1,5 +1,4 @@
-import 'package:dice_master/models/campaign.dart';
-import 'package:equatable/equatable.dart';
+part of 'campaign_bloc.dart';
 
 /// Base
 abstract class CampaignEvent extends Equatable {

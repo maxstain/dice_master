@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../models/campaign.dart';
 import '../../../models/character.dart';
 import '../bloc/campaign_bloc.dart';
-import '../bloc/campaign_event.dart';
 
 class CampaignView extends StatelessWidget {
   final Campaign campaign;

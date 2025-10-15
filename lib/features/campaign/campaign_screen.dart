@@ -1,11 +1,11 @@
 import 'package:dice_master/core/widgets/custom_dialogs.dart';
 import 'package:dice_master/features/campaign/views/dice.dart';
+import 'package:dice_master/models/character.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../campaign/bloc/campaign_bloc.dart';
-import '../campaign/bloc/campaign_event.dart';
-import '../campaign/bloc/campaign_state.dart';
 import 'views/campaign.dart';
 import 'views/characters.dart';
 import 'views/dashboard.dart';
@@ -385,27 +385,21 @@ class _CampaignScreenState extends State<CampaignScreen> {
                             final name = nameController.text.trim();
                             if (name.isEmpty) return;
 
-                            final newChar = {
-                              'id': DateTime.now()
-                                  .millisecondsSinceEpoch
-                                  .toString(),
-                              'name': name,
-                              'role': roleController.text.trim().isEmpty
-                                  ? "Adventurer"
-                                  : roleController.text.trim(),
-                              'race': raceController.text.trim().isEmpty
-                                  ? "Human"
-                                  : raceController.text.trim(),
-                              'level': 1,
-                              'hp': 10,
-                              'maxHp': 10,
-                              'xp': 0.0,
-                              'items': [],
-                              'imageUrl': '',
-                            };
+                            final newChar = Character(
+                              id: FirebaseAuth.instance.currentUser!.uid,
+                              name: name,
+                              role: roleController.text.trim(),
+                              race: raceController.text.trim(),
+                              level: 1,
+                              xp: 0,
+                              hp: 10,
+                              maxHp: 10,
+                              imageUrl: "",
+                            );
 
                             context.read<CampaignBloc>().add(
-                                AddCharacterRequested(campaignId, newChar));
+                                AddCharacterRequested(
+                                    campaignId, newChar.toJson()));
                           },
                     child: isProcessing
                         ? const SizedBox(

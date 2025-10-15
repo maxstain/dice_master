@@ -1,5 +1,6 @@
 import 'package:dice_master/core/widgets/custom_dialogs.dart';
 import 'package:dice_master/features/campaign/widgets/edit_character.dart';
+import 'package:dice_master/features/character/character_sheet.dart';
 import 'package:dice_master/models/character.dart';
 import 'package:flutter/material.dart';
 
@@ -54,6 +55,11 @@ class _CharacterCardState extends State<CharacterCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPress: () => _showCharacterOptionsDialog(context),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => CharacterSheet(
+          character: widget.character,
+        ),
+      )),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.0),
