@@ -32,3 +32,18 @@ class TriggerAddItemToCharacter extends CharacterEvent {
   @override
   List<Object?> get props => [campaignId, characterId, item];
 }
+
+class TriggerRemoveItemFromCharacter extends CharacterEvent {
+  final String campaignId;
+  final String characterId;
+  final ItemRepo item;
+
+  const TriggerRemoveItemFromCharacter({
+    required this.campaignId,
+    required this.characterId,
+    required this.item,
+  });
+
+  @override
+  List<Object?> get props => [campaignId, characterId, item];
+}
